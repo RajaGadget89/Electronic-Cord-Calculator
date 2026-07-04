@@ -20,6 +20,7 @@ function newInput(): JobInput {
     groupingCircuits: 1,
     loads: [],
     maxCableSizeSqmm: 50,
+    tags: [],
   };
 }
 

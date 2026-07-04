@@ -181,6 +181,15 @@ export default function JobForm({
         </Field>
       </div>
 
+      <Field label="แท็ก / หมวดหมู่ (คั่นด้วย , )">
+        <input
+          className={cls()}
+          value={(job.tags ?? []).join(", ")}
+          placeholder="เช่น โรงเรือน A, ปั๊มน้ำ"
+          onChange={(e) => set({ tags: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
+        />
+      </Field>
+
       {/* Loads */}
       <div className={`rounded-xl border p-3 ${err.loads ? "border-fail/50" : "border-line"} bg-panel/50`}>
         <div className="mb-1 flex items-center justify-between">

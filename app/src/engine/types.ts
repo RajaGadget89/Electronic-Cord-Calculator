@@ -39,6 +39,7 @@ export interface JobInput {
   groupingCircuits: number; // number of circuit-groups in the raceway, default 1
   loads: LoadItem[];
   maxCableSizeSqmm?: number; // scope cap, default 50
+  tags?: string[]; // free-form categories for filtering (engine ignores)
 }
 
 export type ResultStatus = "PASS" | "WARN" | "FAIL";
