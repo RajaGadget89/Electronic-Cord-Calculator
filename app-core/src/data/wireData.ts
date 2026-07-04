@@ -13,6 +13,21 @@ import { CableType, InstallGroup, Phase } from "../types";
 export const BREAKER_RATINGS_A = [6, 10, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125];
 export const CABLE_SIZES_SQMM = [1, 1.5, 2.5, 4, 6, 10, 16, 25, 35, 50];
 
+// Equipment grounding conductor size by overcurrent-device (breaker) rating.
+// วสท. ตารางที่ 6-11 (ขนาดสายดินของบริภัณฑ์). Use next-higher row.  [VERIFIED]
+const EQUIP_GROUND: Array<{ upTo: number; size: number }> = [
+  { upTo: 15, size: 2.5 }, { upTo: 20, size: 4 }, { upTo: 60, size: 6 },
+  { upTo: 100, size: 10 }, { upTo: 200, size: 16 }, { upTo: 300, size: 25 },
+  { upTo: 500, size: 35 }, { upTo: 600, size: 50 }, { upTo: 1000, size: 70 },
+  { upTo: 1200, size: 95 }, { upTo: 1600, size: 120 }, { upTo: 2000, size: 150 },
+];
+
+/** Equipment grounding conductor size (sq.mm) for a given breaker rating. */
+export function equipmentGroundSize(breakerA: number): number | null {
+  for (const r of EQUIP_GROUND) if (breakerA <= r.upTo) return r.size;
+  return null;
+}
+
 // Cable characteristics & allowed sizes per วสท. Table 5-48.
 export const CABLE_SPECS: Record<
   CableType,

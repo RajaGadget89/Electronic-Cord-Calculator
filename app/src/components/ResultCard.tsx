@@ -79,6 +79,7 @@ export default function ResultCard({
                 accent={(result.voltageDropPercent ?? 0) <= 3 ? "text-pass" : "text-warn"}
               />
               <Stat label="เบรกเกอร์" value={`${result.breakerA ?? "-"} A`} accent="text-cyan" />
+              <Stat label="สายดินบริภัณฑ์" value={`${result.groundSizeSqmm ?? "-"} ตร.มม.`} accent="text-pass" />
             </div>
           </>
         ) : (

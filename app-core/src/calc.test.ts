@@ -177,6 +177,27 @@ test("VD% matches standard formula (2.5mm² multi 1φ, 50A, 120m ≈ 4.56%)", ()
   assert.ok(Math.abs(r.voltageDropPercent! - 2.52) < 0.05);
 });
 
+// ── Equipment grounding conductor (วสท. 6-11) ────────────────────────────────
+test("ground sized by breaker, capped at phase size", () => {
+  // 40A 1φ THW → breaker 40 → ground table 6mm²; phase 10mm² → ground stays 6
+  const r = calculate(job({
+    phase: "1P", cableType: "THW", installGroup: 2, ambientTempC: 40, lengthM: 10,
+    loads: [L({ unit: "A", value: 40, quantity: 1 })],
+  }));
+  assert.equal(r.breakerA, 40);
+  assert.equal(r.cableSizeSqmm, 10);
+  assert.equal(r.groundSizeSqmm, 6); // breaker 40A → 6mm² (≤60 row)
+});
+test("ground never exceeds phase conductor", () => {
+  // tiny load: breaker 16A → table ground 4mm², but phase 1.5mm² → cap to 1.5
+  const r = calculate(job({
+    phase: "1P", cableType: "THW", installGroup: 2, ambientTempC: 40, lengthM: 5,
+    loads: [L({ unit: "A", value: 13, quantity: 1 })],
+  }));
+  assert.equal(r.breakerA, 16);
+  assert.ok(r.groundSizeSqmm! <= r.cableSizeSqmm!);
+});
+
 // ── Input validation ─────────────────────────────────────────────────────────
 test("empty loads → error", () => {
   const r = calculate(job({ loads: [] }));

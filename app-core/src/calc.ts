@@ -13,6 +13,7 @@ import {
   VOLTAGE_DROP_DATA_AVAILABLE,
   VOLTAGE_DROP_LIMIT_PERCENT,
   ambientFactor,
+  equipmentGroundSize,
   groupingFactor,
   lookupAmpacity,
   voltageDropMvAm,
@@ -80,6 +81,7 @@ export function calculate(input: JobInput): CalcResult {
     totalCurrentA: 0,
     breakerA: null,
     cableSizeSqmm: null,
+    groundSizeSqmm: null,
     baseAmpacityA: null,
     deratedAmpacityA: null,
     voltageDropPercent: null,
@@ -106,6 +108,9 @@ export function calculate(input: JobInput): CalcResult {
     );
     return base;
   }
+
+  // Equipment grounding conductor sized by breaker rating (วสท. 6-11).
+  base.groundSizeSqmm = equipmentGroundSize(breakerA);
 
   // Required cable table-ampacity: It = In / (Ca·Cg).
   const requiredIt = breakerA / (ca * cg);
@@ -157,6 +162,8 @@ export function calculate(input: JobInput): CalcResult {
   }
 
   base.cableSizeSqmm = chosen.size;
+  // Grounding conductor need not be larger than the phase conductor.
+  if (base.groundSizeSqmm != null) base.groundSizeSqmm = Math.min(base.groundSizeSqmm, chosen.size);
   base.baseAmpacityA = chosen.baseA;
   base.deratedAmpacityA = round(chosen.baseA * ca * cg, 2);
   base.ampacityVerified = chosen.verified;

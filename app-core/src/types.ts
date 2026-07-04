@@ -48,6 +48,7 @@ export interface CalcResult {
   totalCurrentA: number;
   breakerA: number | null;
   cableSizeSqmm: number | null;
+  groundSizeSqmm: number | null;  // equipment grounding conductor (by breaker)
   baseAmpacityA: number | null;   // table value before derating
   deratedAmpacityA: number | null; // after Ca x Cg
   voltageDropPercent: number | null;

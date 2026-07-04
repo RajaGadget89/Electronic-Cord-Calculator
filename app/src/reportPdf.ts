@@ -113,6 +113,7 @@ export async function exportPdf(job: JobInput, r: CalcResult): Promise<void> {
     y += 6;
   };
   line("ขนาดสายแนะนำ", `${r.cableSizeSqmm ?? "-"} ตร.มม. (${job.cableType})`);
+  line("สายดินบริภัณฑ์", `${r.groundSizeSqmm ?? "-"} ตร.มม. (ตามเบรกเกอร์)`);
   line("เบรกเกอร์แนะนำ", `${r.breakerA ?? "-"} A`);
   line("กระแสโหลดรวม", `${r.totalCurrentA} A`);
   line("พิกัดสาย (หลัง derate)", `${r.deratedAmpacityA ?? "-"} A`);
