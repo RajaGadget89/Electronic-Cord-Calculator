@@ -69,7 +69,10 @@ ${r.errors.length ? `\n### ข้อผิดพลาด\n${r.errors.map((e) =>
 }
 
 export function downloadText(filename: string, content: string, mime = "text/markdown"): void {
-  const blob = new Blob([content], { type: `${mime};charset=utf-8` });
+  // Prepend a UTF-8 BOM for text files so mobile readers don't mis-detect the
+  // encoding (Thai UTF-8 shown as "à¸..."). Skip BOM for JSON (breaks JSON.parse).
+  const payload = mime.startsWith("text/") ? "﻿" + content : content;
+  const blob = new Blob([payload], { type: `${mime};charset=utf-8` });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
