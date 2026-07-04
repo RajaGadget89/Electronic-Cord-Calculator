@@ -68,7 +68,7 @@ export default function App() {
   };
 
   return (
-    <div className="mx-auto flex min-h-full max-w-md flex-col">
+    <div className="mx-auto flex min-h-full w-full max-w-md flex-col overflow-x-hidden">
       <header className="no-print flex items-center gap-2.5 border-b border-line px-4 py-3">
         <button onClick={() => setView("home")} className="flex items-center gap-2.5">
           <img src="./logo.png" alt="9SPYRE" className="h-7 w-7 rounded-md border border-cyan/40" />
