@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { CalcResult, JobInput } from "../engine";
 import { buildMarkdown, downloadText, printReport, shareReport } from "../report";
 
@@ -31,6 +32,29 @@ export default function ResultCard({
 }) {
   const s = STATUS[result.status] ?? STATUS.FAIL;
   const has = result.cableSizeSqmm != null;
+  const [copied, setCopied] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
+
+  const copyText = async () => {
+    try {
+      await navigator.clipboard.writeText(buildMarkdown(job, result));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      downloadText(`${job.name || "report"}.md`, buildMarkdown(job, result));
+    }
+  };
+  const makePdf = async () => {
+    setPdfBusy(true);
+    try {
+      const { exportPdf } = await import("../reportPdf"); // lazy-load jsPDF on demand
+      await exportPdf(job, result);
+    } catch (e) {
+      alert("สร้าง PDF ไม่สำเร็จ: " + (e as Error).message);
+    } finally {
+      setPdfBusy(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -81,6 +105,19 @@ export default function ResultCard({
 
       <div className="no-print grid grid-cols-2 gap-2.5">
         <button
+          onClick={copyText}
+          className="rounded-xl border border-line bg-panel py-2.5 text-sm font-medium text-ink active:scale-95"
+        >
+          {copied ? "✓ คัดลอกแล้ว" : "⧉ คัดลอกข้อความ"}
+        </button>
+        <button
+          onClick={makePdf}
+          disabled={pdfBusy}
+          className="rounded-xl bg-[#38BDF8] py-2.5 text-sm font-semibold text-[#062330] active:scale-95 disabled:opacity-60"
+        >
+          {pdfBusy ? "กำลังสร้าง…" : "⬇ PDF"}
+        </button>
+        <button
           onClick={() => downloadText(`${job.name || "report"}.md`, buildMarkdown(job, result))}
           className="rounded-xl border border-line bg-panel py-2.5 text-sm font-medium text-ink active:scale-95"
         >
@@ -90,7 +127,7 @@ export default function ResultCard({
           onClick={() => printReport(job, result)}
           className="rounded-xl border border-line bg-panel py-2.5 text-sm font-medium text-ink active:scale-95"
         >
-          🖨 พิมพ์ / PDF
+          🖨 พิมพ์
         </button>
         <button
           onClick={() => shareReport(job, result)}
