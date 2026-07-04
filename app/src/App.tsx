@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { calculate, type CalcResult, type JobInput } from "./engine";
-import { saveJob, uid, type StoredJob } from "./db";
+import { getJob, saveJob, uid, type StoredJob } from "./db";
 import Home from "./components/Home";
 import JobForm from "./components/JobForm";
 import ResultCard from "./components/ResultCard";
@@ -56,13 +56,13 @@ export default function App() {
   const doSave = async () => {
     const id = currentId ?? uid();
     const now = Date.now();
-    const rec: StoredJob = {
-      id,
-      createdAt: currentId ? now : now,
-      updatedAt: now,
-      input,
-    };
-    await saveJob(rec);
+    // Preserve the original createdAt when re-saving an existing job.
+    let createdAt = now;
+    if (currentId) {
+      const existing = await getJob(currentId);
+      if (existing) createdAt = existing.createdAt;
+    }
+    await saveJob({ id, createdAt, updatedAt: now, input });
     setCurrentId(id);
     setSaved(true);
   };
