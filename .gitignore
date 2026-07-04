@@ -1,0 +1,22 @@
+# dependencies & build output
+node_modules/
+dist/
+build/
+
+# logs & os
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# vercel
+.vercel/
+
+# editor
+.vscode/
+.idea/
+
+# copyrighted reference material — DO NOT COMMIT
+*Installation*Book*.pdf
+*EIT*Standard*.pdf
+uploads/
