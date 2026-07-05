@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, type ReactNode } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, deleteJob, exportBackup, importBackup, uid, type StoredJob } from "../db";
 import { downloadText } from "../report";
+import { APP_VERSION } from "../version";
 
 type SortKey = "updated_desc" | "updated_asc" | "created_desc" | "created_asc" | "name_asc";
 
@@ -94,6 +95,18 @@ export default function Home({
       <button onClick={onNew} className="w-full rounded-xl bg-cyan py-3 text-[15px] font-semibold text-[#062330] active:scale-95">
         + สร้างงานใหม่
       </button>
+
+      <div className="flex items-center justify-between text-[13px]">
+        <a
+          href="./manual.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-cyan active:scale-95"
+        >
+          📖 คู่มือการใช้งาน
+        </a>
+        <span className="text-sub">เวอร์ชัน {APP_VERSION}</span>
+      </div>
 
       <div className="flex items-center justify-between">
         <h2 className="text-[15px] font-medium text-ink">งานที่บันทึก ({filtered.length})</h2>

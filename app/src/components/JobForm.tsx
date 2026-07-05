@@ -28,23 +28,51 @@ const ok = "border-line focus:border-cyan";
 const bad = "border-fail focus:border-fail";
 const cls = (err?: boolean | string) => `${base} ${err ? bad : ok}`;
 
+function InfoDot({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="คำอธิบาย"
+      className="flex h-[18px] w-[18px] items-center justify-center rounded-full border border-sub text-[11px] font-medium leading-none text-sub active:scale-90"
+    >
+      i
+    </button>
+  );
+}
+
+function HelpBox({ text }: { text: string }) {
+  return (
+    <div className="mb-1.5 rounded-lg border border-cyan/30 bg-cyan/5 px-3 py-2 text-[12px] leading-relaxed text-ink/90">
+      {text}
+    </div>
+  );
+}
+
 function Field({
   label,
   required,
   error,
+  help,
   children,
 }: {
   label: string;
   required?: boolean;
   error?: string;
+  help?: string;
   children: ReactNode;
 }) {
+  const [open, setOpen] = useState(false);
   return (
     <div>
-      <label className="mb-1 block text-[13px] text-sub">
-        {label}
-        {required && <span className="text-fail"> *</span>}
-      </label>
+      <div className="mb-1 flex items-center gap-1.5">
+        <label className="text-[13px] text-sub">
+          {label}
+          {required && <span className="text-fail"> *</span>}
+        </label>
+        {help && <InfoDot onClick={() => setOpen((o) => !o)} />}
+      </div>
+      {help && open && <HelpBox text={help} />}
       {children}
       {error && <p className="mt-1 text-[12px] text-fail">{error}</p>}
     </div>
@@ -94,6 +122,7 @@ export default function JobForm({
   const [job, setJob] = useState<JobInput>(initial);
   const loadTypes = useLiveQuery(() => allLoadTypes(), [], []);
   const [showAddType, setShowAddType] = useState(false);
+  const [loadHelp, setLoadHelp] = useState(false);
   const [newTypeName, setNewTypeName] = useState("");
   const [newTypePf, setNewTypePf] = useState("0.85");
 
@@ -173,15 +202,26 @@ export default function JobForm({
         <Field label="ความยาว (ม.)" required error={err.lengthM}>
           <input type="number" inputMode="decimal" className={cls(err.lengthM)} value={job.lengthM || ""} placeholder="0" onChange={(e) => set({ lengthM: Number(e.target.value) })} />
         </Field>
-        <Field label="อุณหภูมิ (°C)" error={err.ambientTempC}>
+        <Field
+          label="อุณหภูมิ (°C)"
+          error={err.ambientTempC}
+          help="อุณหภูมิแวดล้อมบริเวณที่เดินสาย ยิ่งร้อน สายยิ่งรับกระแสได้น้อยลง (ต้องใช้สายใหญ่ขึ้น) ค่าเริ่มต้น 40°C ตามมาตรฐานไทย — ในฝ้าเพดานที่ร้อนจัดอาจใส่ 45–50°C"
+        >
           <input type="number" inputMode="decimal" className={cls(err.ambientTempC)} value={job.ambientTempC} onChange={(e) => set({ ambientTempC: Number(e.target.value) })} />
         </Field>
-        <Field label="กลุ่มวงจร" error={err.groupingCircuits}>
+        <Field
+          label="กลุ่มวงจร"
+          error={err.groupingCircuits}
+          help="จำนวนวงจรที่เดินสายรวมในท่อ/ช่องเดียวกัน ยิ่งหลายวงจรในท่อเดียว สายยิ่งระบายความร้อนยาก ต้องใช้สายใหญ่ขึ้น — ถ้าวงจรนี้เดินท่อของตัวเอง ใส่ 1 (ค่าปกติ)"
+        >
           <input type="number" inputMode="numeric" className={cls(err.groupingCircuits)} value={job.groupingCircuits} min={1} onChange={(e) => set({ groupingCircuits: Number(e.target.value) })} />
         </Field>
       </div>
 
-      <Field label="แท็ก / หมวดหมู่ (คั่นด้วย , )">
+      <Field
+        label="แท็ก / หมวดหมู่ (คั่นด้วย , )"
+        help="ป้ายหมวดหมู่ของงาน เช่น ชื่อสถานที่หรือประเภทงาน (ใส่หลายอันคั่นด้วย ,) — ช่วยให้ค้นหาและกรองงานย้อนหลังได้ง่ายขึ้นในหน้าแรก"
+      >
         <input
           className={cls()}
           value={(job.tags ?? []).join(", ")}
@@ -193,13 +233,18 @@ export default function JobForm({
       {/* Loads */}
       <div className={`rounded-xl border p-3 ${err.loads ? "border-fail/50" : "border-line"} bg-panel/50`}>
         <div className="mb-1 flex items-center justify-between">
-          <span className="text-[15px] font-medium text-ink">
+          <span className="flex items-center gap-1.5 text-[15px] font-medium text-ink">
             โหลดในวงจร <span className="text-fail">*</span>
+            <InfoDot onClick={() => setLoadHelp((o) => !o)} />
           </span>
           <button onClick={addLoad} className="rounded-lg border border-cyan px-3 py-1.5 text-[13px] text-cyan active:scale-95">
             + เพิ่มโหลด
           </button>
         </div>
+
+        {loadHelp && (
+          <HelpBox text="แต่ละแถวคือโหลด 1 ชนิด: เลือกชนิดโหลด → หน่วย (วัตต์/แอมป์) → ค่า → จำนวน → pf. ค่า pf (ตัวประกอบกำลัง) บอกว่าโหลดใช้ไฟจริงเทียบกับที่จ่ายแค่ไหน: หลอด/ฮีตเตอร์ = 1.0, มอเตอร์/ปั๊ม/แอร์ ≈ 0.8–0.85 ระบบใส่ให้อัตโนมัติตามชนิดโหลด แต่แก้เองได้ (ใช้ตอนแปลงวัตต์เป็นแอมป์)" />
+        )}
 
         {err.loads && <p className="mb-2 text-[12px] text-fail">{err.loads}</p>}
 
