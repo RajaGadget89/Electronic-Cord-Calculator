@@ -2,7 +2,7 @@
 // Update APP_VERSION and prepend a CHANGELOG entry on every release.
 // The same data feeds the on-screen version label and the user manual.
 
-export const APP_VERSION = "2.4.0";
+export const APP_VERSION = "2.4.1";
 
 export interface ChangeEntry {
   version: string;
@@ -11,6 +11,14 @@ export interface ChangeEntry {
 }
 
 export const CHANGELOG: ChangeEntry[] = [
+  {
+    version: "2.4.1",
+    date: "2026-07-06",
+    changes: [
+      "แก้สัดส่วนช่องกระแส (แอมป์/วัตต์): ช่องกรอกตัวเลขใหญ่ขึ้น เห็นเลขชัด ตัวเลือกหน่วยเล็กลง",
+      "แก้บั๊ก: เปิดงานโหมดตรวจสอบย้อนหลังแล้วแสดงค่ากระแสและผล+ปุ่มทั้งหมดทันที ไม่ต้องกรอกกระแสใหม่",
+    ],
+  },
   {
     version: "2.4.0",
     date: "2026-07-06",

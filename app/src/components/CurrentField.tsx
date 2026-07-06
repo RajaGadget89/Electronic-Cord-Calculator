@@ -1,23 +1,26 @@
 import { useEffect, useState } from "react";
 import type { Phase } from "../engine";
-import { Field, inputCls } from "./Field";
+import { Field, inputBase } from "./Field";
 
 const SQRT3 = Math.sqrt(3);
+const round2 = (n: number) => Math.round(n * 100) / 100;
 
 /** Current input that accepts Amps or Watts (converts W→A using pf). */
 export default function CurrentField({
   phase,
   label = "กระแสโหลด",
   help,
+  initialAmps,
   onAmps,
 }: {
   phase: Phase;
   label?: string;
   help?: string;
+  initialAmps?: number;
   onAmps: (a: number) => void;
 }) {
   const [unit, setUnit] = useState<"A" | "W">("A");
-  const [raw, setRaw] = useState("");
+  const [raw, setRaw] = useState(initialAmps && initialAmps > 0 ? String(round2(initialAmps)) : "");
   const [pf, setPf] = useState("1");
   const voltage = phase === "1P" ? 230 : 400;
 
@@ -37,18 +40,22 @@ export default function CurrentField({
   return (
     <Field label={`${label} (${unit})`} help={helpText}>
       <div className="flex gap-2">
-        <select className={`${inputCls} w-[92px]`} value={unit} onChange={(e) => setUnit(e.target.value as "A" | "W")}>
-          <option value="A">แอมป์</option>
-          <option value="W">วัตต์</option>
-        </select>
         <input
           type="number"
           inputMode="decimal"
-          className={`${inputCls} flex-1`}
+          className={`${inputBase} min-w-0 flex-1`}
           placeholder={unit === "A" ? "เช่น 12" : "เช่น 2000"}
           value={raw}
           onChange={(e) => setRaw(e.target.value)}
         />
+        <select
+          className={`${inputBase} w-[84px] shrink-0`}
+          value={unit}
+          onChange={(e) => setUnit(e.target.value as "A" | "W")}
+        >
+          <option value="A">แอมป์</option>
+          <option value="W">วัตต์</option>
+        </select>
       </div>
       {unit === "W" && (
         <div className="mt-2 flex items-center gap-2">
@@ -56,7 +63,7 @@ export default function CurrentField({
           <input
             type="number"
             step="0.01"
-            className={`${inputCls} w-[100px]`}
+            className={`${inputBase} w-[100px]`}
             value={pf}
             onChange={(e) => setPf(e.target.value)}
           />

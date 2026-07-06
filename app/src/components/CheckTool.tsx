@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { CableType, InstallGroup, Phase } from "../engine";
 import { CABLE_SIZES_SQMM, CABLE_SPECS, DEFAULT_INSTALL_GROUP, checkCircuit } from "../engine";
 import { Field, inputCls } from "./Field";
@@ -38,9 +38,10 @@ export default function CheckTool({
   const [cableSizeSqmm, setSize] = useState(c0?.cableSizeSqmm ?? 2.5);
   const [breakerA, setBreaker] = useState(c0?.breakerA ?? 16);
   const [currentId, setCurrentId] = useState<string | null>(initial?.id ?? null);
-  const [saved, setSaved] = useState(false);
+  const [saved, setSaved] = useState(!!initial);
   const [copied, setCopied] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const firstAmps = useRef(true); // skip marking dirty on the initial current load
 
   const setCable = (c: CableType) => { setCableType(c); setInstallGroup(DEFAULT_INSTALL_GROUP[c]); };
   const ready = loadCurrentA > 0 && lengthM > 0;
@@ -123,7 +124,15 @@ export default function CheckTool({
         </Field>
       </div>
 
-      <CurrentField phase={phase} onAmps={(a) => { setLoad(a); markDirty(); }} />
+      <CurrentField
+        phase={phase}
+        initialAmps={c0?.loadCurrentA}
+        onAmps={(a) => {
+          setLoad(a);
+          if (firstAmps.current) firstAmps.current = false;
+          else markDirty();
+        }}
+      />
 
       <div className="grid grid-cols-2 gap-3">
         <Field label="ความยาวสาย (ม.)" help="ระยะสายทางเดียว จากเบรกเกอร์ถึงโหลด">

@@ -1,7 +1,10 @@
 import { useState, type ReactNode } from "react";
 
-export const inputCls =
-  "w-full rounded-lg border border-line bg-base px-3 py-2.5 text-[15px] text-ink outline-none focus:border-cyan";
+// base styles WITHOUT a width (so callers can set their own width reliably)
+export const inputBase =
+  "rounded-lg border border-line bg-base px-3 py-2.5 text-[15px] text-ink outline-none focus:border-cyan";
+// default full-width input
+export const inputCls = `${inputBase} w-full`;
 
 export function InfoDot({ onClick }: { onClick: () => void }) {
   return (
