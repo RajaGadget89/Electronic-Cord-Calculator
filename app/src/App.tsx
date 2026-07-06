@@ -7,9 +7,13 @@ import ResultCard from "./components/ResultCard";
 import MotorTool from "./components/MotorTool";
 import CheckTool from "./components/CheckTool";
 import ExtraTools from "./components/ExtraTools";
+import MeterTool from "./components/MeterTool";
+import Calculators from "./components/Calculators";
+import QuizTool from "./components/QuizTool";
 import Footer from "./components/Footer";
 
-type View = "home" | "form" | "result" | "motor" | "check" | "tools";
+type View = "home" | "form" | "result" | "motor" | "check" | "tools" | "meter" | "calc" | "quiz";
+type ToolView = "motor" | "check" | "tools" | "meter" | "calc" | "quiz";
 
 function newInput(): JobInput {
   return {
@@ -94,7 +98,7 @@ export default function App() {
           <Home
             onNew={startNew}
             onOpen={openJob}
-            onTool={(t) => {
+            onTool={(t: ToolView) => {
               if (t === "check") setCheckInitial(null);
               setView(t);
             }}
@@ -103,6 +107,9 @@ export default function App() {
         {view === "motor" && <MotorTool onBack={() => setView("home")} />}
         {view === "check" && <CheckTool initial={checkInitial} onBack={() => setView("home")} />}
         {view === "tools" && <ExtraTools onBack={() => setView("home")} />}
+        {view === "meter" && <MeterTool onBack={() => setView("home")} />}
+        {view === "calc" && <Calculators onBack={() => setView("home")} />}
+        {view === "quiz" && <QuizTool onBack={() => setView("home")} />}
         {view === "form" && (
           <JobForm initial={input} onCalculate={doCalculate} onCancel={() => setView("home")} />
         )}

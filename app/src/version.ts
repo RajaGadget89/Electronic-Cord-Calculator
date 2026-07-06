@@ -2,7 +2,7 @@
 // Update APP_VERSION and prepend a CHANGELOG entry on every release.
 // The same data feeds the on-screen version label and the user manual.
 
-export const APP_VERSION = "2.4.1";
+export const APP_VERSION = "2.5.0";
 
 export interface ChangeEntry {
   version: string;
@@ -11,6 +11,15 @@ export interface ChangeEntry {
 }
 
 export const CHANGELOG: ChangeEntry[] = [
+  {
+    version: "2.5.0",
+    date: "2026-07-07",
+    changes: [
+      "เพิ่มเครื่องมือ 'ขนาดมิเตอร์ + สายเมน + เมนเบรกเกอร์' จากโหลดรวม (อ้างอิงตารางการไฟฟ้า + คำนวณตาม วสท.)",
+      "เพิ่มเครื่องคิดเลขประจำวัน: แปลง แรงม้า↔กิโลวัตต์, วัตต์↔แอมป์ และประมาณค่าไฟ",
+      "เพิ่มติวสอบโหมดชิมรส (quiz ลับสมอง) และการ์ดเกร็ดความรู้ประจำวันในหน้าแรก",
+    ],
+  },
   {
     version: "2.4.1",
     date: "2026-07-06",

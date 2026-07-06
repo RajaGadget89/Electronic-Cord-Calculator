@@ -5,6 +5,10 @@ import {
   conduitRecommend,
   maxCableLength,
   checkCircuit,
+  mainService,
+  hpToKw,
+  wattToAmp,
+  ampToWatt,
 } from "./tools";
 
 // ── Motor tables (Appendix G) ────────────────────────────────────────────────
@@ -39,6 +43,30 @@ test("max length THW 1φ 2.5mm² @ 10A ≈ 38 m", () => {
   const r = maxCableLength("THW", "1P", 230, 2.5, 10);
   assert.equal(r.maxLengthM, 38);
 });
+
+// ── Meter + main service ─────────────────────────────────────────────────────
+test("main service: 1φ 60A → meter 30(100), breaker 63, main wire 16mm²", () => {
+  const r = mainService("1P", 60);
+  assert.equal(r.meter, "30(100)");
+  assert.equal(r.breakerA, 63);
+  assert.equal(r.wireSqmm, 16);
+});
+test("main service: 3φ 90A → meter 50(150), breaker 100, main wire 50mm²", () => {
+  const r = mainService("3P", 90);
+  assert.equal(r.meter, "50(150)");
+  assert.equal(r.breakerA, 100);
+  assert.equal(r.wireSqmm, 50);
+});
+test("main service: load beyond app scope → wire null with note", () => {
+  const r = mainService("1P", 200);
+  assert.equal(r.wireSqmm, null);
+  assert.ok(r.note && r.note.length > 0);
+});
+
+// ── Unit conversions ─────────────────────────────────────────────────────────
+test("hpToKw(5) ≈ 3.73", () => assert.ok(Math.abs(hpToKw(5) - 3.73) < 0.01));
+test("wattToAmp 1φ 2300W/230V/pf1 = 10A", () => assert.equal(wattToAmp(2300, "1P", 230, 1), 10));
+test("ampToWatt 1φ 10A/230V/pf1 = 2300W", () => assert.equal(ampToWatt(10, "1P", 230, 1), 2300));
 
 // ── Check existing circuit ───────────────────────────────────────────────────
 test("check: THW 2.5mm² + breaker 20A + 15A load → PASS", () => {

@@ -7,6 +7,9 @@ import {
 } from "../db";
 import { downloadText } from "../report";
 import { APP_VERSION } from "../version";
+import { dailyTip } from "../content/tips";
+
+type ToolView = "motor" | "check" | "tools" | "meter" | "calc" | "quiz";
 
 type SortKey = "updated_desc" | "updated_asc" | "created_desc" | "created_asc" | "name_asc";
 
@@ -26,7 +29,7 @@ export default function Home({
 }: {
   onNew: () => void;
   onOpen: (job: StoredJob) => void;
-  onTool: (t: "motor" | "check" | "tools") => void;
+  onTool: (t: ToolView) => void;
 }) {
   const all = useLiveQuery(() => db.jobs.toArray(), [], [] as StoredJob[]);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -116,18 +119,27 @@ export default function Home({
         <span className="text-sub">เวอร์ชัน {APP_VERSION}</span>
       </div>
 
+      {/* เกร็ดความรู้ประจำวัน */}
+      <div className="rounded-xl border border-cyan/25 bg-cyan/5 px-3.5 py-3">
+        <div className="mb-0.5 text-[11px] font-medium text-cyan">💡 เกร็ดความรู้วันนี้</div>
+        <div className="text-[13px] leading-relaxed text-ink/90">{dailyTip()}</div>
+      </div>
+
       <div>
         <div className="mb-1.5 text-[13px] text-sub">เครื่องมือช่าง</div>
         <div className="grid grid-cols-3 gap-2">
-          <button onClick={() => onTool("motor")} className="rounded-xl border border-line bg-panel px-2 py-3 text-center text-[13px] text-ink active:scale-95">
-            <div className="text-lg">⚙️</div>ปั๊ม/มอเตอร์
-          </button>
-          <button onClick={() => onTool("check")} className="rounded-xl border border-line bg-panel px-2 py-3 text-center text-[13px] text-ink active:scale-95">
-            <div className="text-lg">🔍</div>ตรวจสอบวงจร
-          </button>
-          <button onClick={() => onTool("tools")} className="rounded-xl border border-line bg-panel px-2 py-3 text-center text-[13px] text-ink active:scale-95">
-            <div className="text-lg">🧰</div>ท่อ/ระยะสาย
-          </button>
+          {([
+            ["motor", "⚙️", "ปั๊ม/มอเตอร์"],
+            ["check", "🔍", "ตรวจสอบวงจร"],
+            ["meter", "🔌", "มิเตอร์/สายเมน"],
+            ["tools", "🧰", "ท่อ/ระยะสาย"],
+            ["calc", "🧮", "เครื่องคิดเลข"],
+            ["quiz", "🎓", "ติวสอบ"],
+          ] as const).map(([t, icon, label]) => (
+            <button key={t} onClick={() => onTool(t)} className="rounded-xl border border-line bg-panel px-2 py-3 text-center text-[13px] text-ink active:scale-95">
+              <div className="text-lg">{icon}</div>{label}
+            </button>
+          ))}
         </div>
       </div>
 

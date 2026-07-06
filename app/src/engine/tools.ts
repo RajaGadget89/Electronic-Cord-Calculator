@@ -11,7 +11,10 @@ import {
   lookupAmpacity,
   voltageDropMvAm,
   VOLTAGE_DROP_LIMIT_PERCENT,
+  CABLE_SIZES_SQMM,
 } from "./data/wireData";
+
+const SQRT3 = Math.sqrt(3);
 
 // ── Motor sizing (Appendix G) ────────────────────────────────────────────────
 // Book pre-computes the full motor circuit per HP. cbAltA = larger breaker if it
@@ -172,6 +175,64 @@ export interface CheckResult {
 }
 
 const round = (n: number, d = 2) => Math.round(n * 10 ** d) / 10 ** d;
+
+// ── Meter size + main service (การไฟฟ้า Table 1.1 + verified ampacity engine) ──
+// Meter size → max load (A). [VERIFIED: EIT 2564 Table 1.1, MEA — PEA ใกล้เคียง]
+interface MeterRow { meter: string; maxA: number }
+const METERS_1P: MeterRow[] = [
+  { meter: "5(15)", maxA: 10 }, { meter: "15(45)", maxA: 30 }, { meter: "30(100)", maxA: 75 },
+];
+const METERS_3P: MeterRow[] = [
+  { meter: "15(45)", maxA: 30 }, { meter: "30(100)", maxA: 75 }, { meter: "50(150)", maxA: 100 },
+  { meter: "200", maxA: 200 }, { meter: "400", maxA: 400 },
+];
+// Main-breaker frames (incl. sizes above per-circuit range, for whole-service sizing).
+const MAIN_BREAKERS = [16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 400, 500, 630, 800];
+
+export interface MainServiceResult {
+  meter: string | null;      // recommended utility meter size
+  breakerA: number | null;   // main breaker
+  wireSqmm: number | null;   // main conductor (THW in conduit) — null if beyond app scope
+  loadCurrentA: number;
+  note?: string;
+}
+
+/** Recommend meter + main breaker + main wire from a total service load current. */
+export function mainService(phase: Phase, loadA: number): MainServiceResult {
+  const meters = phase === "1P" ? METERS_1P : METERS_3P;
+  const meter = meters.find((m) => m.maxA >= loadA)?.meter ?? null;
+
+  const breakerA = MAIN_BREAKERS.find((b) => b >= loadA) ?? null;
+
+  let wireSqmm: number | null = null;
+  let note: string | undefined;
+  if (breakerA != null) {
+    for (const size of CABLE_SIZES_SQMM) {
+      // main conductor: THW, in conduit (group 2), 40°C, single circuit
+      const { amps } = lookupAmpacity("THW", 2, phase, size);
+      if (amps != null && amps >= breakerA) { wireSqmm = size; break; }
+    }
+    if (wireSqmm == null) note = "สายเมนเกิน 50 ตร.มม. (เกินขอบเขตแอป) — ควรปรึกษาช่าง/การไฟฟ้า";
+  }
+  if (meter == null) note = "โหลดสูงเกินขนาดมิเตอร์มาตรฐาน — ปรึกษาการไฟฟ้า";
+
+  return { meter, breakerA, wireSqmm, loadCurrentA: round(loadA, 1), note };
+}
+
+// ── Unit conversions (pure) ──────────────────────────────────────────────────
+const HP_TO_KW = 0.746;
+export const hpToKw = (hp: number) => round(hp * HP_TO_KW, 3);
+export const kwToHp = (kw: number) => round(kw / HP_TO_KW, 3);
+/** Power (W) → current (A). */
+export function wattToAmp(watt: number, phase: Phase, voltage: number, pf: number): number {
+  const p = pf > 0 ? pf : 1;
+  return round(phase === "1P" ? watt / (voltage * p) : watt / (SQRT3 * voltage * p), 2);
+}
+/** Current (A) → power (W). */
+export function ampToWatt(amp: number, phase: Phase, voltage: number, pf: number): number {
+  const p = pf > 0 ? pf : 1;
+  return round(phase === "1P" ? amp * voltage * p : amp * SQRT3 * voltage * p, 0);
+}
 
 export function checkCircuit(inp: CheckInput): CheckResult {
   const ca = ambientFactor(inp.ambientTempC, inp.installGroup);
