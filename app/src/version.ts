@@ -2,7 +2,7 @@
 // Update APP_VERSION and prepend a CHANGELOG entry on every release.
 // The same data feeds the on-screen version label and the user manual.
 
-export const APP_VERSION = "2.1.0";
+export const APP_VERSION = "2.2.0";
 
 export interface ChangeEntry {
   version: string;
@@ -11,6 +11,15 @@ export interface ChangeEntry {
 }
 
 export const CHANGELOG: ChangeEntry[] = [
+  {
+    version: "2.2.0",
+    date: "2026-07-06",
+    changes: [
+      "เพิ่มเครื่องมือช่าง 3 อย่าง: โหมดปั๊ม/มอเตอร์ (เลือกแรงม้า → สาย/เบรกเกอร์/สายดิน/ท่อ ตามภาคผนวก G วสท.)",
+      "โหมดตรวจสอบวงจร — เช็คว่าสาย+เบรกเกอร์ที่มีอยู่ปลอดภัยกับโหลดไหม (สำหรับตรวจ/แก้ของเดิม)",
+      "เครื่องมือขนาดท่อร้อยสาย (ภาคผนวก C) และระยะสายสูงสุดที่แรงดันตกไม่เกิน 3%",
+    ],
+  },
   {
     version: "2.1.0",
     date: "2026-07-06",

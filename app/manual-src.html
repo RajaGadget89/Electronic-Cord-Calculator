@@ -2,7 +2,7 @@
 <html lang="th"><head><meta charset="utf-8"><style>
 @page {
   size: A4; margin: 18mm 16mm 20mm;
-  @bottom-center { content: "9SPYRE Wire — คู่มือการใช้งาน  •  เวอร์ชัน 2.1.0  •  หน้า " counter(page) "/" counter(pages);
+  @bottom-center { content: "9SPYRE Wire — คู่มือการใช้งาน  •  เวอร์ชัน 2.2.0  •  หน้า " counter(page) "/" counter(pages);
     font-family: Sarabun; font-size: 9pt; color: #7a8699; }
 }
 * { font-family: 'Sarabun', sans-serif; box-sizing: border-box; }
@@ -39,7 +39,7 @@ li { margin:3px 0; }
   <h1>9SPYRE Wire</h1>
   <div class="sub">คู่มือการใช้งาน<br>แอปคำนวณขนาดสายไฟ เบรกเกอร์ และสายดิน</div>
   <div class="sub" style="font-size:12pt;margin-top:6px;">ตามมาตรฐานการติดตั้งทางไฟฟ้าสำหรับประเทศไทย (วสท.)</div>
-  <div class="badge">เวอร์ชัน 2.1.0</div>
+  <div class="badge">เวอร์ชัน 2.2.0</div>
   <div style="margin-top:40px;color:#5f7d99;">จัดทำโดย Pisut Khungkamano</div>
 </div>
 
@@ -104,6 +104,9 @@ li { margin:3px 0; }
 <tr><td><strong>ออกรายงาน</strong></td><td>คัดลอกข้อความ, ดาวน์โหลด Markdown, ส่งออก PDF (ภาษาไทย), พิมพ์, แชร์</td></tr>
 <tr><td><strong>สำรอง/กู้คืน</strong></td><td>ส่งออกข้อมูลทั้งหมดเป็นไฟล์เดียว กันข้อมูลหาย</td></tr>
 <tr><td><strong>ติดตั้งเป็นแอป</strong></td><td>เพิ่มลงหน้าจอมือถือ ใช้งานแบบออฟไลน์ได้ (PWA)</td></tr>
+<tr><td><strong>โหมดปั๊ม/มอเตอร์</strong></td><td>เลือกแรงม้า → แนะนำสาย เบรกเกอร์ สายดิน และท่อ (ภาคผนวก G วสท.)</td></tr>
+<tr><td><strong>โหมดตรวจสอบวงจร</strong></td><td>เช็คว่าสาย+เบรกเกอร์ที่มีอยู่ปลอดภัยกับโหลดไหม (ตรวจ/แก้ของเดิม)</td></tr>
+<tr><td><strong>เครื่องมือช่าง</strong></td><td>ขนาดท่อร้อยสาย และระยะสายสูงสุดที่แรงดันตกไม่เกิน 3%</td></tr>
 </table>
 
 <!-- วิธีใช้ -->
@@ -149,6 +152,7 @@ li { margin:3px 0; }
 <h2>ประวัติเวอร์ชัน (Version History)</h2>
 <table>
 <tr><th style="width:70px">เวอร์ชัน</th><th style="width:90px">วันที่</th><th>การเปลี่ยนแปลง</th></tr>
+<tr><td><strong>2.2.0</strong></td><td>6 ก.ค. 2569</td><td>เพิ่มเครื่องมือช่าง: โหมดปั๊ม/มอเตอร์ (ภาคผนวก G), โหมดตรวจสอบวงจร, ขนาดท่อร้อยสาย (ภาคผนวก C), ระยะสายสูงสุด</td></tr>
 <tr><td><strong>2.1.0</strong></td><td>6 ก.ค. 2569</td><td>เพิ่มหมายเหตุความปลอดภัยในหน้าผลลัพธ์และรายงานทุกรูปแบบ: งานจริงควรให้วิศวกรไฟฟ้าที่มีใบอนุญาตทวนก่อนใช้งาน</td></tr>
 <tr><td><strong>2.0.0</strong></td><td>6 ก.ค. 2569</td><td>แก้การคำนวณให้ตรงมาตรฐาน วสท. 2564 หลัง audit เทียบหนังสือทีละค่า: กฎ 125% มอเตอร์, VCT ใช้ตาราง 5-26, สายดินใช้ตาราง 4.2, ตาราง 5-22 คอลัมน์แนวตั้ง, Cg แยกตามวิธีติดตั้ง, บล็อกอุณหภูมิ >60°C, VAF จำกัด 1 เฟส (ผลบางเคสเปลี่ยน)</td></tr>
 <tr><td>1.7.0</td><td>6 ก.ค. 2569</td><td>เพิ่มคู่มือ (PDF) ในหน้าแรก · ไอคอนช่วยเหลือ i · แสดงเวอร์ชัน + ระบบประวัติเวอร์ชัน</td></tr>

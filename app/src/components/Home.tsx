@@ -18,9 +18,11 @@ const PAGE_SIZES = [10, 25, 50];
 export default function Home({
   onNew,
   onOpen,
+  onTool,
 }: {
   onNew: () => void;
   onOpen: (job: StoredJob) => void;
+  onTool: (t: "motor" | "check" | "tools") => void;
 }) {
   const all = useLiveQuery(() => db.jobs.toArray(), [], [] as StoredJob[]);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -106,6 +108,21 @@ export default function Home({
           📖 คู่มือการใช้งาน
         </a>
         <span className="text-sub">เวอร์ชัน {APP_VERSION}</span>
+      </div>
+
+      <div>
+        <div className="mb-1.5 text-[13px] text-sub">เครื่องมือช่าง</div>
+        <div className="grid grid-cols-3 gap-2">
+          <button onClick={() => onTool("motor")} className="rounded-xl border border-line bg-panel px-2 py-3 text-center text-[13px] text-ink active:scale-95">
+            <div className="text-lg">⚙️</div>ปั๊ม/มอเตอร์
+          </button>
+          <button onClick={() => onTool("check")} className="rounded-xl border border-line bg-panel px-2 py-3 text-center text-[13px] text-ink active:scale-95">
+            <div className="text-lg">🔍</div>ตรวจสอบวงจร
+          </button>
+          <button onClick={() => onTool("tools")} className="rounded-xl border border-line bg-panel px-2 py-3 text-center text-[13px] text-ink active:scale-95">
+            <div className="text-lg">🧰</div>ท่อ/ระยะสาย
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center justify-between">

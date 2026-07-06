@@ -4,9 +4,12 @@ import { getJob, saveJob, uid, type StoredJob } from "./db";
 import Home from "./components/Home";
 import JobForm from "./components/JobForm";
 import ResultCard from "./components/ResultCard";
+import MotorTool from "./components/MotorTool";
+import CheckTool from "./components/CheckTool";
+import ExtraTools from "./components/ExtraTools";
 import Footer from "./components/Footer";
 
-type View = "home" | "form" | "result";
+type View = "home" | "form" | "result" | "motor" | "check" | "tools";
 
 function newInput(): JobInput {
   return {
@@ -81,7 +84,16 @@ export default function App() {
       </header>
 
       <main className="flex-1 px-4 py-4">
-        {view === "home" && <Home onNew={startNew} onOpen={openJob} />}
+        {view === "home" && (
+          <Home
+            onNew={startNew}
+            onOpen={openJob}
+            onTool={(t) => setView(t)}
+          />
+        )}
+        {view === "motor" && <MotorTool onBack={() => setView("home")} />}
+        {view === "check" && <CheckTool onBack={() => setView("home")} />}
+        {view === "tools" && <ExtraTools onBack={() => setView("home")} />}
         {view === "form" && (
           <JobForm initial={input} onCalculate={doCalculate} onCancel={() => setView("home")} />
         )}
