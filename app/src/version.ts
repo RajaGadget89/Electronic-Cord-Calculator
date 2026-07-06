@@ -2,7 +2,7 @@
 // Update APP_VERSION and prepend a CHANGELOG entry on every release.
 // The same data feeds the on-screen version label and the user manual.
 
-export const APP_VERSION = "2.3.0";
+export const APP_VERSION = "2.4.0";
 
 export interface ChangeEntry {
   version: string;
@@ -11,6 +11,14 @@ export interface ChangeEntry {
 }
 
 export const CHANGELOG: ChangeEntry[] = [
+  {
+    version: "2.4.0",
+    date: "2026-07-06",
+    changes: [
+      "โหมดตรวจสอบวงจร: บันทึกเก็บประวัติได้ (ชื่องาน+แท็ก) ดูย้อนหลัง แก้ไข ทำซ้ำ และออกรายงาน (คัดลอก/Markdown/พิมพ์/PDF/แชร์) เหมือนงานออกแบบ",
+      "หน้าแรก: เพิ่มป้ายกำกับประเภทงาน (🔧 ออกแบบ / 🔍 ตรวจสอบ) และตัวกรองตามประเภท",
+    ],
+  },
   {
     version: "2.3.0",
     date: "2026-07-06",

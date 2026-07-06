@@ -1,13 +1,34 @@
 import Dexie, { Table } from "dexie";
-import type { JobInput, LoadType } from "./engine";
+import type { CableType, CheckInput, JobInput, LoadType, Phase } from "./engine";
 import { DEFAULT_LOAD_TYPES } from "./engine";
+
+export type JobKind = "design" | "check";
+
+// A saved "check circuit" job = the check inputs plus name/tags.
+export interface CheckJob extends CheckInput {
+  name: string;
+  tags?: string[];
+}
 
 export interface StoredJob {
   id: string;
   createdAt: number;
   updatedAt: number;
-  input: JobInput;
+  kind?: JobKind;        // undefined = "design" (backward compatible with old records)
+  input?: JobInput;      // present when design
+  check?: CheckJob;      // present when check
 }
+
+// ── Accessors that work for both kinds (and legacy records) ──────────────────
+export const jobKind = (j: StoredJob): JobKind => j.kind ?? "design";
+export const jobName = (j: StoredJob): string =>
+  jobKind(j) === "check" ? j.check?.name ?? "" : j.input?.name ?? "";
+export const jobCable = (j: StoredJob): CableType =>
+  (jobKind(j) === "check" ? j.check?.cableType : j.input?.cableType) ?? "THW";
+export const jobPhase = (j: StoredJob): Phase =>
+  (jobKind(j) === "check" ? j.check?.phase : j.input?.phase) ?? "1P";
+export const jobTags = (j: StoredJob): string[] =>
+  (jobKind(j) === "check" ? j.check?.tags : j.input?.tags) ?? [];
 
 class WireDB extends Dexie {
   jobs!: Table<StoredJob, string>;

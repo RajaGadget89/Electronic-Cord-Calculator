@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { calculate, type CalcResult, type JobInput } from "./engine";
-import { getJob, saveJob, uid, type StoredJob } from "./db";
+import { getJob, jobKind, saveJob, uid, type CheckJob, type StoredJob } from "./db";
 import Home from "./components/Home";
 import JobForm from "./components/JobForm";
 import ResultCard from "./components/ResultCard";
@@ -33,6 +33,7 @@ export default function App() {
   const [result, setResult] = useState<CalcResult | null>(null);
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [checkInitial, setCheckInitial] = useState<{ id: string; check: CheckJob } | null>(null);
 
   const startNew = () => {
     setInput(newInput());
@@ -43,9 +44,14 @@ export default function App() {
   };
 
   const openJob = (j: StoredJob) => {
-    setInput(j.input);
+    if (jobKind(j) === "check" && j.check) {
+      setCheckInitial({ id: j.id, check: j.check });
+      setView("check");
+      return;
+    }
+    setInput(j.input!);
     setCurrentId(j.id);
-    setResult(calculate(j.input));
+    setResult(calculate(j.input!));
     setSaved(true);
     setView("result");
   };
@@ -88,11 +94,14 @@ export default function App() {
           <Home
             onNew={startNew}
             onOpen={openJob}
-            onTool={(t) => setView(t)}
+            onTool={(t) => {
+              if (t === "check") setCheckInitial(null);
+              setView(t);
+            }}
           />
         )}
         {view === "motor" && <MotorTool onBack={() => setView("home")} />}
-        {view === "check" && <CheckTool onBack={() => setView("home")} />}
+        {view === "check" && <CheckTool initial={checkInitial} onBack={() => setView("home")} />}
         {view === "tools" && <ExtraTools onBack={() => setView("home")} />}
         {view === "form" && (
           <JobForm initial={input} onCalculate={doCalculate} onCancel={() => setView("home")} />

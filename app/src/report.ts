@@ -1,6 +1,9 @@
 import type { CalcResult, JobInput, InstallGroup } from "./engine";
+import { checkCircuit } from "./engine";
+import type { CheckJob } from "./db";
 
 const CREATOR = "Pisut Khungkamano";
+const DISCLAIMER = "ผลนี้เป็นการประเมินเบื้องต้นตามมาตรฐาน วสท. ไม่ใช่เอกสารรับรองทางวิศวกรรม — งานติดตั้งจริงควรให้วิศวกรไฟฟ้าที่มีใบอนุญาตทวนอีกชั้นก่อนใช้งาน";
 
 const GROUP_LABEL: Record<InstallGroup, string> = {
   1: "ร้อยท่อในฝ้า/ผนังกันไฟ (กลุ่ม 1)",
@@ -81,6 +84,84 @@ export function downloadText(filename: string, content: string, mime = "text/mar
   a.download = filename;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ── Check-circuit report (inspection mode) ───────────────────────────────────
+const CHECK_STATUS: Record<string, string> = {
+  PASS: "ปลอดภัย (ผ่าน)", WARN: "ควรระวัง", FAIL: "ไม่ปลอดภัย",
+};
+
+export function buildCheckMarkdown(c: CheckJob): string {
+  const r = checkCircuit(c);
+  const date = new Date().toLocaleString("th-TH");
+  const checks = r.items.map((i) => `- ${i.ok ? "✓" : "✗"} ${i.detail}`).join("\n");
+  return `# รายงานตรวจสอบวงจร
+
+**ชื่องาน:** ${c.name}
+**วันที่:** ${date}
+**ประเภท:** ตรวจสอบวงจร (Check)
+
+## ข้อมูลวงจร
+- ระบบไฟ: ${c.phase === "1P" ? "1 เฟส" : "3 เฟส"} ${c.voltage} V
+- ชนิดสาย: ${c.cableType} · วิธีติดตั้ง: ${GROUP_LABEL[c.installGroup]}
+- ขนาดสายที่มี: ${c.cableSizeSqmm} ตร.มม. · เบรกเกอร์ที่มี: ${c.breakerA} A
+- กระแสโหลด: ${c.loadCurrentA} A · ความยาว: ${c.lengthM} ม.
+- อุณหภูมิ: ${c.ambientTempC} °C · กลุ่มวงจร: ${c.groupingCircuits}
+
+## ผลตรวจสอบ
+- **สถานะ:** ${CHECK_STATUS[r.status] ?? r.status}
+- พิกัดสาย (หลัง derate): ${r.deratedAmpacityA ?? "-"} A
+- แรงดันตก: ${r.voltageDropPercent ?? "-"} %
+
+### รายการตรวจ
+${checks}
+
+---
+> ⚠️ **หมายเหตุสำคัญ:** ${DISCLAIMER}
+
+สร้างโดย ${CREATOR}
+`;
+}
+
+export async function shareCheckReport(c: CheckJob): Promise<void> {
+  const text = buildCheckMarkdown(c);
+  const nav = navigator as Navigator & { share?: (d: ShareData) => Promise<void> };
+  if (nav.share) {
+    try { await nav.share({ title: `ตรวจสอบวงจร: ${c.name}`, text }); return; } catch { /* cancel */ }
+  }
+  downloadText(`${c.name || "check"}.md`, text);
+}
+
+export function printCheckReport(c: CheckJob): void {
+  const r = checkCircuit(c);
+  const color = statusColor(r.status);
+  const date = new Date().toLocaleString("th-TH");
+  const rows = r.items.map((i) => `<li>${i.ok ? "✓" : "✗"} ${i.detail}</li>`).join("");
+  const html = `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>ตรวจสอบ ${c.name}</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>*{font-family:'Sarabun',sans-serif}body{color:#12233a;margin:28px;font-size:14px;line-height:1.55}
+h1{color:#0b3d91;font-size:20px;border-bottom:3px solid #22D3EE;padding-bottom:6px}
+h2{color:#0b3d91;font-size:15px;margin:16px 0 6px;border-left:5px solid #22D3EE;padding-left:8px}
+.badge{display:inline-block;padding:4px 14px;border-radius:20px;color:#062330;font-weight:700;background:${color}}
+ul{padding-left:18px}li{margin:4px 0}
+.foot{margin-top:22px;border-top:1px solid #d5deea;padding-top:8px;color:#5f7d99;font-size:12px}</style></head><body>
+<h1>รายงานตรวจสอบวงจร</h1>
+<p><b>ชื่องาน:</b> ${c.name} &nbsp;•&nbsp; <b>วันที่:</b> ${date}</p>
+<p class="badge">${CHECK_STATUS[r.status] ?? r.status}</p>
+<h2>ข้อมูลวงจร</h2>
+<p>ระบบไฟ ${c.phase === "1P" ? "1 เฟส" : "3 เฟส"} ${c.voltage}V • ${c.cableType} • ${GROUP_LABEL[c.installGroup]}<br>
+สายที่มี ${c.cableSizeSqmm} ตร.มม. • เบรกเกอร์ ${c.breakerA}A • โหลด ${c.loadCurrentA}A • ยาว ${c.lengthM} ม. • ${c.ambientTempC}°C • ${c.groupingCircuits} กลุ่มวงจร</p>
+<h2>ผลตรวจสอบ</h2>
+<p>พิกัดสาย (หลัง derate) ${r.deratedAmpacityA ?? "-"} A • แรงดันตก ${r.voltageDropPercent ?? "-"}%</p>
+<ul>${rows}</ul>
+<div class="foot">⚠️ ${DISCLAIMER}<br>สร้างโดย ${CREATOR}</div>
+</body></html>`;
+  const w = window.open("", "_blank");
+  if (!w) return;
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 600);
 }
 
 export async function shareReport(job: JobInput, r: CalcResult): Promise<void> {

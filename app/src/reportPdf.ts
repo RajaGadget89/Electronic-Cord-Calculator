@@ -1,5 +1,7 @@
 import { jsPDF } from "jspdf";
 import type { CalcResult, JobInput, InstallGroup } from "./engine";
+import { checkCircuit } from "./engine";
+import type { CheckJob } from "./db";
 
 const CREATOR = "Pisut Khungkamano";
 
@@ -175,5 +177,59 @@ export async function exportPdf(job: JobInput, r: CalcResult): Promise<void> {
   doc.text(`สร้างโดย ${CREATOR}`, M, fy + disc.length * 4 + 1);
 
   const safe = (job.name || "report").replace(/[^\p{L}\p{N}\-_ ]/gu, "").trim() || "report";
+  doc.save(`${safe}.pdf`);
+}
+
+const CHECK_STATUS: Record<string, string> = { PASS: "ปลอดภัย (ผ่าน)", WARN: "ควรระวัง", FAIL: "ไม่ปลอดภัย" };
+
+export async function exportCheckPdf(c: CheckJob): Promise<void> {
+  const r = checkCircuit(c);
+  const fonts = await loadFonts();
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  doc.addFileToVFS("Sarabun-Regular.ttf", fonts.regular);
+  doc.addFont("Sarabun-Regular.ttf", "Sarabun", "normal");
+  doc.addFileToVFS("Sarabun-Bold.ttf", fonts.bold);
+  doc.addFont("Sarabun-Bold.ttf", "Sarabun", "bold");
+
+  const M = 16, W = 210, contentW = W - M * 2;
+  let y = 20;
+  const blue: [number, number, number] = [11, 61, 145];
+  const dark: [number, number, number] = [18, 35, 58];
+  const badge = STATUS_RGB[r.status] ?? STATUS_RGB.FAIL;
+
+  doc.setFont("Sarabun", "bold"); doc.setFontSize(18); doc.setTextColor(...blue);
+  doc.text("รายงานตรวจสอบวงจร", M, y); y += 3;
+  doc.setDrawColor(34, 211, 238); doc.setLineWidth(0.8); doc.line(M, y, W - M, y); y += 7;
+
+  doc.setFont("Sarabun", "normal"); doc.setFontSize(11); doc.setTextColor(...dark);
+  doc.text(`ชื่องาน: ${c.name}`, M, y); y += 5.5;
+  doc.text(`วันที่: ${new Date().toLocaleString("th-TH")}`, M, y); y += 8;
+
+  doc.setFillColor(badge[0], badge[1], badge[2]); doc.roundedRect(M, y - 5, 62, 8, 2, 2, "F");
+  doc.setTextColor(6, 35, 48); doc.setFont("Sarabun", "bold");
+  doc.text(`สถานะ: ${CHECK_STATUS[r.status] ?? r.status}`, M + 4, y); y += 11;
+
+  doc.setFont("Sarabun", "bold"); doc.setFontSize(13); doc.setTextColor(...blue);
+  doc.text("ข้อมูลวงจร", M, y); y += 6;
+  doc.setFont("Sarabun", "normal"); doc.setFontSize(11); doc.setTextColor(...dark);
+  const info = `ระบบไฟ ${c.phase === "1P" ? "1 เฟส" : "3 เฟส"} ${c.voltage}V · ${c.cableType} · สายที่มี ${c.cableSizeSqmm} ตร.มม. · เบรกเกอร์ ${c.breakerA}A · โหลด ${c.loadCurrentA}A · ยาว ${c.lengthM} ม. · ${c.ambientTempC}°C · ${c.groupingCircuits} กลุ่มวงจร`;
+  doc.splitTextToSize(info, contentW).forEach((t: string) => { doc.text(t, M, y); y += 5.5; });
+  y += 3;
+
+  doc.setFont("Sarabun", "bold"); doc.setFontSize(13); doc.setTextColor(...blue);
+  doc.text("รายการตรวจ", M, y); y += 6;
+  doc.setFont("Sarabun", "normal"); doc.setFontSize(11); doc.setTextColor(...dark);
+  r.items.forEach((it) => {
+    doc.splitTextToSize(`${it.ok ? "✓" : "✗"} ${it.detail}`, contentW).forEach((t: string) => { doc.text(t, M + 2, y); y += 5.5; });
+  });
+
+  const fy = 281;
+  doc.setDrawColor(213, 222, 234); doc.setLineWidth(0.3); doc.line(M, fy - 4, W - M, fy - 4);
+  doc.setFont("Sarabun", "normal"); doc.setFontSize(9); doc.setTextColor(95, 125, 153);
+  const disc = doc.splitTextToSize("⚠️ ผลนี้เป็นการประเมินเบื้องต้นตามมาตรฐาน วสท. ไม่ใช่เอกสารรับรองทางวิศวกรรม — งานติดตั้งจริงควรให้วิศวกรไฟฟ้าที่มีใบอนุญาตทวนอีกชั้นก่อนใช้งาน", contentW);
+  doc.text(disc, M, fy);
+  doc.text(`สร้างโดย ${CREATOR}`, M, fy + disc.length * 4 + 1);
+
+  const safe = (c.name || "check").replace(/[^\p{L}\p{N}\-_ ]/gu, "").trim() || "check";
   doc.save(`${safe}.pdf`);
 }

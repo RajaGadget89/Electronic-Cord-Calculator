@@ -1,6 +1,10 @@
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, deleteJob, exportBackup, importBackup, uid, type StoredJob } from "../db";
+import {
+  db, deleteJob, exportBackup, importBackup, uid,
+  jobKind, jobName, jobCable, jobPhase, jobTags,
+  type JobKind, type StoredJob,
+} from "../db";
 import { downloadText } from "../report";
 import { APP_VERSION } from "../version";
 
@@ -29,37 +33,39 @@ export default function Home({
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<SortKey>("updated_desc");
   const [tag, setTag] = useState<string | null>(null);
+  const [kindFilter, setKindFilter] = useState<JobKind | "all">("all");
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(0);
 
   const allTags = useMemo(() => {
     const s = new Set<string>();
-    (all ?? []).forEach((j) => (j.input.tags ?? []).forEach((t) => s.add(t)));
+    (all ?? []).forEach((j) => jobTags(j).forEach((t) => s.add(t)));
     return Array.from(s).sort((a, b) => a.localeCompare(b, "th"));
   }, [all]);
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
-    let list = (all ?? []).filter((j) => {
-      const tags = j.input.tags ?? [];
+    const list = (all ?? []).filter((j) => {
+      const tags = jobTags(j);
       const matchQ =
         !term ||
-        j.input.name.toLowerCase().includes(term) ||
-        j.input.cableType.toLowerCase().includes(term) ||
+        jobName(j).toLowerCase().includes(term) ||
+        jobCable(j).toLowerCase().includes(term) ||
         tags.some((t) => t.toLowerCase().includes(term));
       const matchTag = !tag || tags.includes(tag);
-      return matchQ && matchTag;
+      const matchKind = kindFilter === "all" || jobKind(j) === kindFilter;
+      return matchQ && matchTag && matchKind;
     });
     return list.sort((a, b) => {
       switch (sort) {
         case "updated_asc": return a.updatedAt - b.updatedAt;
         case "created_desc": return b.createdAt - a.createdAt;
         case "created_asc": return a.createdAt - b.createdAt;
-        case "name_asc": return a.input.name.localeCompare(b.input.name, "th");
+        case "name_asc": return jobName(a).localeCompare(jobName(b), "th");
         default: return b.updatedAt - a.updatedAt;
       }
     });
-  }, [all, q, sort, tag]);
+  }, [all, q, sort, tag, kindFilter]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const curPage = Math.min(page, pageCount - 1);
@@ -81,12 +87,12 @@ export default function Home({
   };
   const duplicate = async (j: StoredJob) => {
     const now = Date.now();
-    await db.jobs.put({
-      id: uid(),
-      createdAt: now,
-      updatedAt: now,
-      input: { ...j.input, name: `${j.input.name || "งาน"} (สำเนา)` },
-    });
+    const copyName = `${jobName(j) || "งาน"} (สำเนา)`;
+    if (jobKind(j) === "check" && j.check) {
+      await db.jobs.put({ id: uid(), createdAt: now, updatedAt: now, kind: "check", check: { ...j.check, name: copyName } });
+    } else if (j.input) {
+      await db.jobs.put({ id: uid(), createdAt: now, updatedAt: now, kind: "design", input: { ...j.input, name: copyName } });
+    }
   };
 
   const inputCls = "w-full rounded-lg border border-line bg-base px-3 py-2.5 text-[15px] text-ink outline-none focus:border-cyan";
@@ -143,6 +149,18 @@ export default function Home({
             </select>
           </div>
 
+          <div className="flex gap-2 text-[13px]">
+            {([["all", "ทั้งหมด"], ["design", "🔧 ออกแบบ"], ["check", "🔍 ตรวจสอบ"]] as const).map(([k, label]) => (
+              <button
+                key={k}
+                onClick={() => { setKindFilter(k); resetPage(); }}
+                className={`flex-1 rounded-lg border px-2 py-1.5 active:scale-95 ${kindFilter === k ? "border-cyan bg-cyan/15 text-cyan" : "border-line text-sub"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           {allTags.length > 0 && (
             <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
               <Chip active={tag === null} onClick={() => { setTag(null); resetPage(); }}>ทั้งหมด</Chip>
@@ -163,14 +181,20 @@ export default function Home({
       <div className="space-y-2">
         {pageItems.map((j, i) => {
           const n = curPage * pageSize + i + 1;
-          const tags = j.input.tags ?? [];
+          const tags = jobTags(j);
+          const isCheck = jobKind(j) === "check";
           return (
             <div key={j.id} className="flex items-center gap-3 rounded-xl border border-line bg-panel px-3 py-3">
               <span className="min-w-[22px] text-center text-[13px] font-medium text-sub">{n}</span>
               <button onClick={() => onOpen(j)} className="min-w-0 flex-1 text-left">
-                <div className="truncate font-medium text-ink">{j.input.name || "(ไม่มีชื่อ)"}</div>
-                <div className="text-[11px] text-sub">
-                  {j.input.cableType} · {j.input.phase === "1P" ? "1φ" : "3φ"} · แก้ไข {new Date(j.updatedAt).toLocaleDateString("th-TH")}
+                <div className="flex items-center gap-1.5">
+                  <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${isCheck ? "bg-warn/15 text-warn" : "bg-cyan/15 text-cyan"}`}>
+                    {isCheck ? "🔍 ตรวจสอบ" : "🔧 ออกแบบ"}
+                  </span>
+                  <span className="truncate font-medium text-ink">{jobName(j) || "(ไม่มีชื่อ)"}</span>
+                </div>
+                <div className="mt-0.5 text-[11px] text-sub">
+                  {jobCable(j)} · {jobPhase(j) === "1P" ? "1φ" : "3φ"} · แก้ไข {new Date(j.updatedAt).toLocaleDateString("th-TH")}
                 </div>
                 {tags.length > 0 && (
                   <div className="mt-1 flex flex-wrap gap-1">
