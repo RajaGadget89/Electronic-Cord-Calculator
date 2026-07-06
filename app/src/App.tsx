@@ -10,10 +10,11 @@ import ExtraTools from "./components/ExtraTools";
 import MeterTool from "./components/MeterTool";
 import Calculators from "./components/Calculators";
 import QuizTool from "./components/QuizTool";
+import ApplianceTool from "./components/ApplianceTool";
 import Footer from "./components/Footer";
 
-type View = "home" | "form" | "result" | "motor" | "check" | "tools" | "meter" | "calc" | "quiz";
-type ToolView = "motor" | "check" | "tools" | "meter" | "calc" | "quiz";
+type View = "home" | "form" | "result" | "motor" | "check" | "tools" | "meter" | "calc" | "quiz" | "appliance";
+type ToolView = "motor" | "check" | "tools" | "meter" | "calc" | "quiz" | "appliance";
 
 function newInput(): JobInput {
   return {
@@ -110,6 +111,12 @@ export default function App() {
         {view === "meter" && <MeterTool onBack={() => setView("home")} />}
         {view === "calc" && <Calculators onBack={() => setView("home")} />}
         {view === "quiz" && <QuizTool onBack={() => setView("home")} />}
+        {view === "appliance" && (
+          <ApplianceTool
+            onCalculate={(j) => { setCurrentId(null); doCalculate(j); }}
+            onBack={() => setView("home")}
+          />
+        )}
         {view === "form" && (
           <JobForm initial={input} onCalculate={doCalculate} onCancel={() => setView("home")} />
         )}

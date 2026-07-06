@@ -9,7 +9,7 @@ import { downloadText } from "../report";
 import { APP_VERSION } from "../version";
 import TipCarousel from "./TipCarousel";
 
-type ToolView = "motor" | "check" | "tools" | "meter" | "calc" | "quiz";
+type ToolView = "motor" | "check" | "tools" | "meter" | "calc" | "quiz" | "appliance";
 
 type SortKey = "updated_desc" | "updated_asc" | "created_desc" | "created_asc" | "name_asc";
 
@@ -126,6 +126,7 @@ export default function Home({
         <div className="mb-1.5 text-[13px] text-sub">เครื่องมือช่าง</div>
         <div className="grid grid-cols-3 gap-2">
           {([
+            ["appliance", "❄️", "เครื่องใช้ไฟฟ้า"],
             ["motor", "⚙️", "ปั๊ม/มอเตอร์"],
             ["check", "🔍", "ตรวจสอบวงจร"],
             ["meter", "🔌", "มิเตอร์/สายเมน"],

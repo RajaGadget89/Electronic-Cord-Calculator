@@ -2,7 +2,7 @@
 // Update APP_VERSION and prepend a CHANGELOG entry on every release.
 // The same data feeds the on-screen version label and the user manual.
 
-export const APP_VERSION = "2.6.0";
+export const APP_VERSION = "2.7.0";
 
 export interface ChangeEntry {
   version: string;
@@ -11,6 +11,15 @@ export interface ChangeEntry {
 }
 
 export const CHANGELOG: ChangeEntry[] = [
+  {
+    version: "2.7.0",
+    date: "2026-07-07",
+    changes: [
+      "เพิ่มโหมดเครื่องใช้ไฟฟ้า: เลือกอุปกรณ์ (แอร์/เครื่องทำน้ำอุ่น/ปั๊มน้ำ/เตา ฯลฯ) แล้วระบบเติมกำลังไฟให้ พร้อมแนะนำสาย เบรกเกอร์ และสายดินที่ปลอดภัยตาม วสท.",
+      "อุปกรณ์ที่มีมอเตอร์/คอมเพรสเซอร์ (แอร์/ปั๊ม/ตู้เย็น) เผื่อกระแสสตาร์ท 125% ให้อัตโนมัติ",
+      "ค่ากำลังไฟเป็นค่าประมาณ ปรับแก้ให้ตรงป้ายเครื่องจริงได้ · บันทึกเก็บประวัติและออกรายงานได้เหมือนงานออกแบบ",
+    ],
+  },
   {
     version: "2.6.0",
     date: "2026-07-07",
