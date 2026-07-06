@@ -2,7 +2,7 @@
 // Update APP_VERSION and prepend a CHANGELOG entry on every release.
 // The same data feeds the on-screen version label and the user manual.
 
-export const APP_VERSION = "2.2.1";
+export const APP_VERSION = "2.3.0";
 
 export interface ChangeEntry {
   version: string;
@@ -11,6 +11,15 @@ export interface ChangeEntry {
 }
 
 export const CHANGELOG: ChangeEntry[] = [
+  {
+    version: "2.3.0",
+    date: "2026-07-06",
+    changes: [
+      "โหมดตรวจสอบวงจร และ ระยะสายสูงสุด: ช่องกระแสใส่เป็นวัตต์ (W) ได้ (แปลงเป็นแอมป์ให้อัตโนมัติด้วยค่า pf)",
+      "เพิ่มไอคอนช่วยเหลือ i อธิบายช่องต่าง ๆ ในเครื่องมือช่างทั้งหมด",
+      "เพิ่มเนื้อหาเครื่องมือช่าง (มอเตอร์/ตรวจสอบ/ท่อ/ระยะสาย) ในคู่มือ PDF",
+    ],
+  },
   {
     version: "2.2.1",
     date: "2026-07-06",

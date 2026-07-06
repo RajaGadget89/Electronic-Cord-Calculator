@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { CableType, InstallGroup, Phase } from "../engine";
 import { CABLE_SIZES_SQMM, CABLE_SPECS, DEFAULT_INSTALL_GROUP, checkCircuit } from "../engine";
+import { Field, inputCls } from "./Field";
+import CurrentField from "./CurrentField";
 
 const CABLES: CableType[] = ["THW", "VAF", "VCT", "NYY"];
 const BREAKERS = [6, 10, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125];
@@ -8,7 +10,6 @@ const GROUPS_FOR: Record<CableType, InstallGroup[]> = { THW: [2, 1, 4], VAF: [3]
 const GROUP_LABEL: Record<InstallGroup, string> = {
   1: "ร้อยท่อในฝ้า", 2: "ร้อยท่อเกาะผนัง", 3: "เดินเกาะผนัง", 4: "บนลูกถ้วยในอากาศ", 5: "ร้อยท่อฝังดิน", 6: "ฝังดินโดยตรง", 7: "บนรางเคเบิล",
 };
-const inputCls = "w-full rounded-lg border border-line bg-base px-3 py-2.5 text-[15px] text-ink outline-none focus:border-cyan";
 const STATUS: Record<string, { label: string; cls: string; ring: string }> = {
   PASS: { label: "ปลอดภัย (ผ่าน)", cls: "text-pass", ring: "border-pass/40 bg-pass/10" },
   WARN: { label: "ควรระวัง", cls: "text-warn", ring: "border-warn/40 bg-warn/10" },
@@ -33,8 +34,8 @@ export default function CheckTool({ onBack }: { onBack: () => void }) {
       phase, voltage: phase === "1P" ? 230 : 400, cableType, installGroup,
       ambientTempC, groupingCircuits, lengthM, loadCurrentA, cableSizeSqmm, breakerA,
     }));
-
   const s = res ? STATUS[res.status] : null;
+  const ready = loadCurrentA > 0 && lengthM > 0;
 
   return (
     <div className="space-y-4">
@@ -42,48 +43,54 @@ export default function CheckTool({ onBack }: { onBack: () => void }) {
       <p className="-mt-2 text-[12px] text-sub">มีสาย + เบรกเกอร์อยู่แล้ว โหลดเท่านี้ ปลอดภัยไหม (สำหรับตรวจ/แก้ของเดิม)</p>
 
       <div className="grid grid-cols-2 gap-3">
-        <div><label className="mb-1 block text-[13px] text-sub">ระบบไฟ</label>
+        <Field label="ระบบไฟ">
           <select className={inputCls} value={phase} onChange={(e) => setPhase(e.target.value as Phase)}>
             <option value="1P">1 เฟส (230V)</option><option value="3P">3 เฟส (400V)</option>
-          </select></div>
-        <div><label className="mb-1 block text-[13px] text-sub">ชนิดสาย</label>
+          </select>
+        </Field>
+        <Field label="ชนิดสาย" help="ชนิดสายที่เดินอยู่จริง — มีผลต่อพิกัดกระแสและตารางที่ใช้">
           <select className={inputCls} value={cableType} onChange={(e) => setCable(e.target.value as CableType)}>
             {CABLES.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select></div>
+          </select>
+        </Field>
       </div>
       <p className="-mt-2 text-[12px] text-sub">{CABLE_SPECS[cableType].note}</p>
 
-      <div><label className="mb-1 block text-[13px] text-sub">วิธีติดตั้ง</label>
+      <Field label="วิธีติดตั้ง" help="วิธีเดินสายจริง (ในท่อ/เกาะผนัง/ฝังดิน ฯลฯ) มีผลต่อพิกัดกระแสที่สายรับได้">
         <select className={inputCls} value={installGroup} onChange={(e) => setInstallGroup(Number(e.target.value) as InstallGroup)}>
           {GROUPS_FOR[cableType].map((g) => <option key={g} value={g}>{GROUP_LABEL[g]}</option>)}
-        </select></div>
+        </select>
+      </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <div><label className="mb-1 block text-[13px] text-sub">ขนาดสายที่มี (ตร.มม.)</label>
+        <Field label="ขนาดสายที่มี (ตร.มม.)" help="ขนาดสายที่ติดตั้งไปแล้วหน้างาน">
           <select className={inputCls} value={cableSizeSqmm} onChange={(e) => setSize(Number(e.target.value))}>
             {CABLE_SIZES_SQMM.map((n) => <option key={n} value={n}>{n}</option>)}
-          </select></div>
-        <div><label className="mb-1 block text-[13px] text-sub">เบรกเกอร์ที่มี (A)</label>
+          </select>
+        </Field>
+        <Field label="เบรกเกอร์ที่มี (A)" help="พิกัดเบรกเกอร์ที่ติดตั้งไปแล้ว (ดูที่ตัวเบรกเกอร์)">
           <select className={inputCls} value={breakerA} onChange={(e) => setBreaker(Number(e.target.value))}>
             {BREAKERS.map((n) => <option key={n} value={n}>{n}</option>)}
-          </select></div>
+          </select>
+        </Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div><label className="mb-1 block text-[13px] text-sub">กระแสโหลด (A)</label>
-          <input type="number" inputMode="decimal" className={inputCls} value={loadCurrentA || ""} placeholder="วัดหรือคำนวณ" onChange={(e) => setLoad(Number(e.target.value))} /></div>
-        <div><label className="mb-1 block text-[13px] text-sub">ความยาวสาย (ม.)</label>
-          <input type="number" inputMode="decimal" className={inputCls} value={lengthM || ""} onChange={(e) => setLength(Number(e.target.value))} /></div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div><label className="mb-1 block text-[13px] text-sub">อุณหภูมิ (°C)</label>
-          <input type="number" inputMode="decimal" className={inputCls} value={ambientTempC} onChange={(e) => setAmbient(Number(e.target.value))} /></div>
-        <div><label className="mb-1 block text-[13px] text-sub">กลุ่มวงจร</label>
-          <input type="number" inputMode="numeric" className={inputCls} value={groupingCircuits} min={1} onChange={(e) => setGrouping(Number(e.target.value))} /></div>
-      </div>
+      <CurrentField phase={phase} onAmps={setLoad} />
 
-      <button onClick={run} disabled={!(loadCurrentA > 0 && lengthM > 0)}
-        className={`w-full rounded-xl py-3 text-[15px] font-semibold active:scale-95 ${loadCurrentA > 0 && lengthM > 0 ? "bg-cyan text-[#062330]" : "cursor-not-allowed bg-panel text-sub"}`}>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="ความยาวสาย (ม.)" help="ระยะสายทางเดียว จากเบรกเกอร์ถึงโหลด">
+          <input type="number" inputMode="decimal" className={inputCls} value={lengthM || ""} onChange={(e) => setLength(Number(e.target.value))} />
+        </Field>
+        <Field label="อุณหภูมิ (°C)" help="อุณหภูมิรอบสาย ค่าเริ่มต้น 40°C (ในฝ้าร้อนจัดใส่ 45–50)">
+          <input type="number" inputMode="decimal" className={inputCls} value={ambientTempC} onChange={(e) => setAmbient(Number(e.target.value))} />
+        </Field>
+      </div>
+      <Field label="กลุ่มวงจร" help="จำนวนวงจรที่เดินรวมในท่อเดียวกัน (วงจรนี้เดินท่อเดี่ยว = 1)">
+        <input type="number" inputMode="numeric" className={inputCls} value={groupingCircuits} min={1} onChange={(e) => setGrouping(Number(e.target.value))} />
+      </Field>
+
+      <button onClick={run} disabled={!ready}
+        className={`w-full rounded-xl py-3 text-[15px] font-semibold active:scale-95 ${ready ? "bg-cyan text-[#062330]" : "cursor-not-allowed bg-panel text-sub"}`}>
         ตรวจสอบ
       </button>
 

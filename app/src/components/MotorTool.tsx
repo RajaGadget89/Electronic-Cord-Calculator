@@ -1,8 +1,7 @@
 import { useState } from "react";
 import type { Phase } from "../engine";
 import { motorLookup, motorTable } from "../engine";
-
-const inputCls = "w-full rounded-lg border border-line bg-base px-3 py-2.5 text-[15px] text-ink outline-none focus:border-cyan";
+import { Field, inputCls } from "./Field";
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
@@ -30,21 +29,19 @@ export default function MotorTool({ onBack }: { onBack: () => void }) {
       <p className="-mt-2 text-[12px] text-sub">เลือกแรงม้า → แนะนำสาย เบรกเกอร์ สายดิน และท่อ (ตามภาคผนวก G ของ วสท.)</p>
 
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="mb-1 block text-[13px] text-sub">ระบบไฟ</label>
+        <Field label="ระบบไฟ" help="ปั๊ม/มอเตอร์บ้านทั่วไปมักเป็น 1 เฟส 230V ส่วนมอเตอร์ใหญ่ในฟาร์มมักเป็น 3 เฟส 400V">
           <select className={inputCls} value={phase} onChange={(e) => setPhaseReset(e.target.value as Phase)}>
             <option value="1P">1 เฟส (230V)</option>
             <option value="3P">3 เฟส (400V)</option>
           </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-[13px] text-sub">ขนาดมอเตอร์</label>
+        </Field>
+        <Field label="ขนาดมอเตอร์" help="เลือกแรงม้า (HP) ตามป้ายมอเตอร์ — ระบบใช้กระแสโหลดเต็มที่ (FLC) จากตารางมาตรฐาน วสท. คำนวณให้">
           <select className={inputCls} value={hp} onChange={(e) => setHp(e.target.value)}>
             {rows.map((r) => (
               <option key={r.hp} value={r.hp}>{r.hp} HP ({r.kw} kW)</option>
             ))}
           </select>
-        </div>
+        </Field>
       </div>
 
       <div className="rounded-2xl border border-cyan/30 bg-cyan/5 p-4">

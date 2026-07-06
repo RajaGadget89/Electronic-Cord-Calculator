@@ -1,8 +1,9 @@
 import { useState } from "react";
 import type { CableType, Phase } from "../engine";
 import { CABLE_SIZES_SQMM, conduitRecommend, maxCableLength } from "../engine";
+import { Field, inputCls } from "./Field";
+import CurrentField from "./CurrentField";
 
-const inputCls = "w-full rounded-lg border border-line bg-base px-3 py-2.5 text-[15px] text-ink outline-none focus:border-cyan";
 const CONDUIT_CABLES: ("THW" | "NYY")[] = ["THW", "NYY"];
 const VD_CABLES: CableType[] = ["THW", "VAF", "VCT", "NYY"];
 
@@ -29,16 +30,19 @@ export default function ExtraTools({ onBack }: { onBack: () => void }) {
         <h3 className="text-[15px] font-medium text-cyan">ขนาดท่อร้อยสาย</h3>
         <p className="mb-3 mt-0.5 text-[12px] text-sub">สายขนาดเดียวกันกี่เส้น → ท่อขนาดเท่าไร (ภาคผนวก C วสท.)</p>
         <div className="grid grid-cols-3 gap-2.5">
-          <div><label className="mb-1 block text-[12px] text-sub">ชนิดสาย</label>
+          <Field label="ชนิดสาย" help="รองรับ THW และ NYY (สาย NYY มีเปลือกนอกจึงต้องท่อใหญ่กว่า)">
             <select className={inputCls} value={cCable} onChange={(e) => setCCable(e.target.value as "THW" | "NYY")}>
               {CONDUIT_CABLES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select></div>
-          <div><label className="mb-1 block text-[12px] text-sub">ขนาด (ตร.มม.)</label>
+            </select>
+          </Field>
+          <Field label="ขนาด (ตร.มม.)">
             <select className={inputCls} value={cSize} onChange={(e) => setCSize(Number(e.target.value))}>
               {CABLE_SIZES_SQMM.map((n) => <option key={n} value={n}>{n}</option>)}
-            </select></div>
-          <div><label className="mb-1 block text-[12px] text-sub">จำนวนเส้น</label>
-            <input type="number" inputMode="numeric" className={inputCls} value={cCount || ""} min={1} onChange={(e) => setCCount(Number(e.target.value))} /></div>
+            </select>
+          </Field>
+          <Field label="จำนวนเส้น" help="นับสายทุกเส้นที่อยู่ในท่อเดียวกัน รวมสายมีไฟ นิวทรัล และสายดินด้วย">
+            <input type="number" inputMode="numeric" className={inputCls} value={cCount || ""} min={1} onChange={(e) => setCCount(Number(e.target.value))} />
+          </Field>
         </div>
         <div className="mt-3 rounded-xl bg-base p-3 text-center">
           {conduit.conduitMm ? (
@@ -55,20 +59,25 @@ export default function ExtraTools({ onBack }: { onBack: () => void }) {
         <h3 className="text-[15px] font-medium text-cyan">ระยะสายสูงสุด (แรงดันตก ≤ 3%)</h3>
         <p className="mb-3 mt-0.5 text-[12px] text-sub">สายขนาดนี้ โหลดเท่านี้ ลากได้ไกลสุดกี่เมตร</p>
         <div className="grid grid-cols-2 gap-2.5">
-          <div><label className="mb-1 block text-[12px] text-sub">ชนิดสาย</label>
+          <Field label="ชนิดสาย">
             <select className={inputCls} value={lCable} onChange={(e) => setLCable(e.target.value as CableType)}>
               {VD_CABLES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select></div>
-          <div><label className="mb-1 block text-[12px] text-sub">ระบบไฟ</label>
+            </select>
+          </Field>
+          <Field label="ระบบไฟ">
             <select className={inputCls} value={lPhase} onChange={(e) => setLPhase(e.target.value as Phase)}>
               <option value="1P">1 เฟส</option><option value="3P">3 เฟส</option>
-            </select></div>
-          <div><label className="mb-1 block text-[12px] text-sub">ขนาด (ตร.มม.)</label>
+            </select>
+          </Field>
+          <Field label="ขนาด (ตร.มม.)" help="ขนาดสายที่จะใช้ ยิ่งใหญ่ ยิ่งลากได้ไกลก่อนแรงดันตก">
             <select className={inputCls} value={lSize} onChange={(e) => setLSize(Number(e.target.value))}>
               {CABLE_SIZES_SQMM.map((n) => <option key={n} value={n}>{n}</option>)}
-            </select></div>
-          <div><label className="mb-1 block text-[12px] text-sub">กระแสโหลด (A)</label>
-            <input type="number" inputMode="decimal" className={inputCls} value={lCurrent || ""} onChange={(e) => setLCurrent(Number(e.target.value))} /></div>
+            </select>
+          </Field>
+          <div />
+        </div>
+        <div className="mt-2">
+          <CurrentField phase={lPhase} onAmps={setLCurrent} />
         </div>
         <div className="mt-3 rounded-xl bg-base p-3 text-center">
           {ml?.maxLengthM != null ? (
