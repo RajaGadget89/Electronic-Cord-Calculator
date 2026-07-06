@@ -7,7 +7,7 @@ import {
 } from "../db";
 import { downloadText } from "../report";
 import { APP_VERSION } from "../version";
-import { dailyTip } from "../content/tips";
+import TipCarousel from "./TipCarousel";
 
 type ToolView = "motor" | "check" | "tools" | "meter" | "calc" | "quiz";
 
@@ -119,11 +119,8 @@ export default function Home({
         <span className="text-sub">เวอร์ชัน {APP_VERSION}</span>
       </div>
 
-      {/* เกร็ดความรู้ประจำวัน */}
-      <div className="rounded-xl border border-cyan/25 bg-cyan/5 px-3.5 py-3">
-        <div className="mb-0.5 text-[11px] font-medium text-cyan">💡 เกร็ดความรู้วันนี้</div>
-        <div className="text-[13px] leading-relaxed text-ink/90">{dailyTip()}</div>
-      </div>
+      {/* เกร็ดความรู้ประจำวัน (สไลด์วน) */}
+      <TipCarousel />
 
       <div>
         <div className="mb-1.5 text-[13px] text-sub">เครื่องมือช่าง</div>

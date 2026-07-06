@@ -17,9 +17,30 @@ export const TIPS: string[] = [
   "สายดินของบริภัณฑ์คิดขนาดจากพิกัดเบรกเกอร์ (ตาราง 4.2) และไม่ต้องใหญ่กว่าสายเฟส",
 ];
 
+function dayOfYear(date: Date): number {
+  const start = new Date(date.getFullYear(), 0, 0);
+  return Math.floor((date.getTime() - start.getTime()) / 86400000);
+}
+
 /** เกร็ดของวันนี้ (เปลี่ยนทุกวัน) */
 export function dailyTip(date = new Date()): string {
-  const start = new Date(date.getFullYear(), 0, 0);
-  const day = Math.floor((date.getTime() - start.getTime()) / 86400000);
-  return TIPS[day % TIPS.length];
+  return TIPS[dayOfYear(date) % TIPS.length];
 }
+
+/** ชุดเกร็ด n อัน (หมุนเปลี่ยนตามวัน) สำหรับ carousel */
+export function dailyTipSet(n = 5, date = new Date()): string[] {
+  const startAt = (dayOfYear(date) * n) % TIPS.length;
+  const out: string[] = [];
+  for (let i = 0; i < Math.min(n, TIPS.length); i++) out.push(TIPS[(startAt + i) % TIPS.length]);
+  return out;
+}
+
+// ── ช่องสปอนเซอร์ (สไลด์ที่ 6) — ตั้งค่าเมื่อมีสปอนเซอร์จริง ──────────────────
+export interface Sponsor {
+  brand: string; // ชื่อ/ข้อความสั้นของสปอนเซอร์
+  text: string;  // ข้อความโฆษณา
+  url: string;   // ลิงก์ไปสินค้า/หน้าสปอนเซอร์
+}
+// ตัวอย่างการตั้งค่าในอนาคต:
+//   export const SPONSOR: Sponsor | null = { brand: "แบรนด์สายไฟ ABC", text: "สายไฟมาตรฐาน มอก. ราคาพิเศษ", url: "https://..." };
+export const SPONSOR: Sponsor | null = null;

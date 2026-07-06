@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Phase } from "../engine";
 import { hpToKw, kwToHp, wattToAmp, ampToWatt } from "../engine";
-import { Field, inputCls } from "./Field";
+import { Field, inputCls, inputBase } from "./Field";
 
 const num = (s: string) => (s.trim() === "" ? NaN : Number(s));
 const fmt = (n: number, d = 2) => (Number.isFinite(n) ? String(Math.round(n * 10 ** d) / 10 ** d) : "-");
@@ -56,8 +56,8 @@ export default function Calculators({ onBack }: { onBack: () => void }) {
           <Field label="ค่า pf" help="หลอด/ฮีตเตอร์ = 1 · มอเตอร์/แอร์ ≈ 0.8"><input type="number" step="0.01" className={inputCls} value={pf} onChange={(e) => setPf(e.target.value)} /></Field>
         </div>
         <div className="mt-2 flex gap-2">
-          <input type="number" inputMode="decimal" className={`${inputCls} min-w-0 flex-1`} value={waVal} onChange={(e) => setWaVal(e.target.value)} placeholder={wa === "W" ? "เช่น 2000" : "เช่น 9"} />
-          <select className={`${inputCls} w-[84px] shrink-0`} value={wa} onChange={(e) => setWa(e.target.value as "W" | "A")}><option value="W">วัตต์</option><option value="A">แอมป์</option></select>
+          <input type="number" inputMode="decimal" className={`${inputBase} min-w-0 flex-1`} value={waVal} onChange={(e) => setWaVal(e.target.value)} placeholder={wa === "W" ? "เช่น 2000" : "เช่น 9"} />
+          <select className={`${inputBase} w-[84px] shrink-0`} value={wa} onChange={(e) => setWa(e.target.value as "W" | "A")}><option value="W">วัตต์</option><option value="A">แอมป์</option></select>
         </div>
         <div className="mt-3 rounded-xl bg-base p-3 text-center">
           {waOut != null ? (

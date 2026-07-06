@@ -2,7 +2,7 @@
 // Update APP_VERSION and prepend a CHANGELOG entry on every release.
 // The same data feeds the on-screen version label and the user manual.
 
-export const APP_VERSION = "2.5.0";
+export const APP_VERSION = "2.6.0";
 
 export interface ChangeEntry {
   version: string;
@@ -11,6 +11,15 @@ export interface ChangeEntry {
 }
 
 export const CHANGELOG: ChangeEntry[] = [
+  {
+    version: "2.6.0",
+    date: "2026-07-07",
+    changes: [
+      "เกร็ดความรู้หน้าแรกเป็นสไลด์วนอัตโนมัติ (5 เกร็ด/วัน) + เตรียมช่องสปอนเซอร์ (สไลด์ที่ 6)",
+      "แก้สัดส่วนช่องแปลงวัตต์/แอมป์ในเครื่องคิดเลขให้สมดุล",
+      "แก้คู่มือให้ดึงเวอร์ชันล่าสุดเสมอเมื่อออนไลน์ (เปลี่ยนการแคชเป็น NetworkFirst)",
+    ],
+  },
   {
     version: "2.5.0",
     date: "2026-07-07",
