@@ -17,6 +17,7 @@ export interface LoadType {
   name: string;      // e.g. "ปั๊มน้ำ/มอเตอร์"
   pf: number;        // power factor, 0 < pf <= 1
   isCustom: boolean;
+  isMotor?: boolean; // โหลดมอเตอร์ → ใช้กฎ 125% (วสท. ข้อ 6.1.1)
 }
 
 export interface LoadItem {
@@ -26,6 +27,7 @@ export interface LoadItem {
   value: number;     // magnitude in the chosen unit (per single load)
   quantity: number;  // how many identical loads
   pf: number;        // effective pf (from LoadType, user-overridable)
+  isMotor?: boolean; // ถ้าไม่ระบุ engine เดาจาก loadTypeId (งานเก่าก่อนมีฟิลด์นี้)
 }
 
 export interface JobInput {
@@ -46,6 +48,7 @@ export type ResultStatus = "PASS" | "WARN" | "FAIL";
 export interface CalcResult {
   status: ResultStatus;
   totalCurrentA: number;
+  designCurrentA: number;         // กระแสออกแบบ = โหลดรวม + กฎ 125% โหลดมอเตอร์
   breakerA: number | null;
   cableSizeSqmm: number | null;
   groundSizeSqmm: number | null;  // equipment grounding conductor (by breaker)

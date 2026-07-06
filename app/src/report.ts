@@ -53,7 +53,7 @@ ${loads}
 
 ## ผลการคำนวณ
 - **สถานะ:** ${STATUS_LABEL[r.status] ?? r.status}
-- กระแสโหลดรวม: **${fmt(r.totalCurrentA, " A")}**
+- กระแสโหลดรวม: **${fmt(r.totalCurrentA, " A")}**${r.designCurrentA > r.totalCurrentA ? `\n- กระแสออกแบบ (กฎมอเตอร์ 125%): **${fmt(r.designCurrentA, " A")}**` : ""}
 - ขนาดสายแนะนำ: **${fmt(r.cableSizeSqmm, " ตร.มม.")} (${job.cableType})**
 - ขนาดสายดินบริภัณฑ์: **${fmt(r.groundSizeSqmm, " ตร.มม.")}** (ตามพิกัดเบรกเกอร์)
 - พิกัดกระแสสาย (หลัง derate): ${fmt(r.deratedAmpacityA, " A")} (ฐานตาราง ${fmt(r.baseAmpacityA, " A")})
@@ -147,7 +147,7 @@ function buildPrintHtml(job: JobInput, r: CalcResult): string {
   <div class="kv">ขนาดสายแนะนำ<br><b>${r.cableSizeSqmm ?? "-"} ตร.มม. (${job.cableType})</b></div>
   <div class="kv">เบรกเกอร์แนะนำ<br><b>${r.breakerA ?? "-"} A</b></div>
   <div class="kv">สายดินบริภัณฑ์<br><b>${r.groundSizeSqmm ?? "-"} ตร.มม.</b></div>
-  <div class="kv">กระแสโหลดรวม<br><b>${r.totalCurrentA} A</b></div>
+  <div class="kv">กระแสโหลดรวม${r.designCurrentA > r.totalCurrentA ? " / ออกแบบ (125%)" : ""}<br><b>${r.totalCurrentA}${r.designCurrentA > r.totalCurrentA ? ` / ${r.designCurrentA}` : ""} A</b></div>
   <div class="kv">แรงดันตก<br><b>${r.voltageDropPercent ?? "-"} %</b> (≤3%)</div>
   <div class="kv">พิกัดสายหลัง derate<br><b>${r.deratedAmpacityA ?? "-"} A</b></div>
   <div class="kv">Ca / Cg<br><b>${r.ca} / ${r.cg}</b></div>

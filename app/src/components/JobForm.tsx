@@ -21,6 +21,9 @@ const GROUP_LABEL: Record<InstallGroup, string> = {
   6: "ฝังดินโดยตรง",
   7: "บนรางเคเบิล",
 };
+// VCT เป็นสายอ่อน ไม่ได้เดินบนลูกถ้วย — กลุ่ม 4 ของ VCT หมายถึงเดินในอากาศ (ตาราง 5-26)
+const groupLabelFor = (cable: CableType, g: InstallGroup): string =>
+  cable === "VCT" && g === 4 ? "เดินในอากาศ (ต่อเครื่องใช้ไฟฟ้า)" : GROUP_LABEL[g];
 
 const base =
   "w-full rounded-lg border bg-base px-3 py-2.5 text-[15px] text-ink outline-none";
@@ -93,8 +96,10 @@ function validate(job: JobInput): Errors {
   const e: Errors = { loadItems: [] };
   if (!job.name.trim()) e.name = "กรุณากรอกชื่องาน";
   if (!(job.lengthM > 0)) e.lengthM = "ต้องมากกว่า 0";
-  if (!(job.ambientTempC > -50 && job.ambientTempC < 200)) e.ambientTempC = "ค่าไม่ถูกต้อง";
+  if (!(job.ambientTempC > -50)) e.ambientTempC = "ค่าไม่ถูกต้อง";
+  else if (job.ambientTempC > 60) e.ambientTempC = "เกิน 60°C สาย PVC ใช้ไม่ได้";
   if (!(job.groupingCircuits >= 1)) e.groupingCircuits = "อย่างน้อย 1";
+  else if (!Number.isInteger(job.groupingCircuits)) e.groupingCircuits = "จำนวนเต็มเท่านั้น";
   if (job.loads.length === 0) e.loads = "ต้องมีโหลดอย่างน้อย 1 รายการ";
   e.loadItems = job.loads.map((l) => ({
     value: l.value > 0 ? undefined : "ต้อง > 0",
@@ -125,6 +130,7 @@ export default function JobForm({
   const [loadHelp, setLoadHelp] = useState(false);
   const [newTypeName, setNewTypeName] = useState("");
   const [newTypePf, setNewTypePf] = useState("0.85");
+  const [newTypeMotor, setNewTypeMotor] = useState(false);
 
   const err = validate(job);
   const valid = isValid(err);
@@ -132,7 +138,12 @@ export default function JobForm({
   const set = (patch: Partial<JobInput>) => setJob((j) => ({ ...j, ...patch }));
   const setPhase = (phase: Phase) => set({ phase, voltage: phase === "1P" ? 230 : 400 });
   const setCable = (cableType: CableType) =>
-    set({ cableType, installGroup: DEFAULT_INSTALL_GROUP[cableType] });
+    set({
+      cableType,
+      installGroup: DEFAULT_INSTALL_GROUP[cableType],
+      // VAF เป็นสายแบน 1 เฟสเท่านั้น — เลือก VAF ขณะอยู่ 3 เฟส ให้สลับกลับ 1 เฟส
+      ...(cableType === "VAF" ? { phase: "1P" as Phase, voltage: 230 } : {}),
+    });
   const setLoad = (i: number, patch: Partial<LoadItem>) =>
     set({ loads: job.loads.map((l, idx) => (idx === i ? { ...l, ...patch } : l)) });
 
@@ -141,20 +152,21 @@ export default function JobForm({
     set({
       loads: [
         ...job.loads,
-        { loadTypeId: t?.id ?? "socket", label: t?.name ?? "โหลด", unit: "W", value: 0, quantity: 1, pf: t?.pf ?? 1 },
+        { loadTypeId: t?.id ?? "socket", label: t?.name ?? "โหลด", unit: "W", value: 0, quantity: 1, pf: t?.pf ?? 1, isMotor: t?.isMotor ?? false },
       ],
     });
   };
   const removeLoad = (i: number) => set({ loads: job.loads.filter((_, idx) => idx !== i) });
   const chooseType = (i: number, id: string) => {
     const t = (loadTypes ?? []).find((x) => x.id === id);
-    if (t) setLoad(i, { loadTypeId: t.id, label: t.name, pf: t.pf });
+    if (t) setLoad(i, { loadTypeId: t.id, label: t.name, pf: t.pf, isMotor: t.isMotor ?? false });
   };
   const saveNewType = async () => {
     const pf = parseFloat(newTypePf);
     if (!newTypeName.trim() || !(pf > 0 && pf <= 1)) return;
-    await addLoadType({ id: uid(), name: newTypeName.trim(), pf, isCustom: true });
+    await addLoadType({ id: uid(), name: newTypeName.trim(), pf, isCustom: true, isMotor: newTypeMotor });
     setNewTypeName("");
+    setNewTypeMotor(false);
     setShowAddType(false);
   };
 
@@ -173,7 +185,9 @@ export default function JobForm({
         <Field label="ระบบไฟ">
           <select className={cls()} value={job.phase} onChange={(e) => setPhase(e.target.value as Phase)}>
             <option value="1P">1 เฟส (230V)</option>
-            <option value="3P">3 เฟส (400V)</option>
+            <option value="3P" disabled={job.cableType === "VAF"}>
+              3 เฟส (400V){job.cableType === "VAF" ? " — VAF ใช้ไม่ได้" : ""}
+            </option>
           </select>
         </Field>
         <Field label="ชนิดสาย">
@@ -193,7 +207,7 @@ export default function JobForm({
           onChange={(e) => set({ installGroup: Number(e.target.value) as InstallGroup })}
         >
           {GROUPS_FOR[job.cableType].map((g) => (
-            <option key={g} value={g}>{GROUP_LABEL[g]}</option>
+            <option key={g} value={g}>{groupLabelFor(job.cableType, g)}</option>
           ))}
         </select>
       </Field>
@@ -205,7 +219,7 @@ export default function JobForm({
         <Field
           label="อุณหภูมิ (°C)"
           error={err.ambientTempC}
-          help="อุณหภูมิแวดล้อมบริเวณที่เดินสาย ยิ่งร้อน สายยิ่งรับกระแสได้น้อยลง (ต้องใช้สายใหญ่ขึ้น) ค่าเริ่มต้น 40°C ตามมาตรฐานไทย — ในฝ้าเพดานที่ร้อนจัดอาจใส่ 45–50°C"
+          help="อุณหภูมิแวดล้อมบริเวณที่เดินสาย ยิ่งร้อน สายยิ่งรับกระแสได้น้อยลง (ต้องใช้สายใหญ่ขึ้น) ค่าเริ่มต้น 40°C ตามมาตรฐานไทย — ในฝ้าเพดานที่ร้อนจัดอาจใส่ 45–50°C · สูงสุด 60°C (เกินนั้นสาย PVC ใช้ไม่ได้ตามมาตรฐาน)"
         >
           <input type="number" inputMode="decimal" className={cls(err.ambientTempC)} value={job.ambientTempC} onChange={(e) => set({ ambientTempC: Number(e.target.value) })} />
         </Field>
@@ -287,6 +301,10 @@ export default function JobForm({
               <input className={cls()} placeholder="ชื่อชนิดโหลด" value={newTypeName} onChange={(e) => setNewTypeName(e.target.value)} />
               <input type="number" step="0.01" className={cls()} placeholder="pf" value={newTypePf} onChange={(e) => setNewTypePf(e.target.value)} />
             </div>
+            <label className="mt-2 flex items-center gap-2 text-[13px] text-ink">
+              <input type="checkbox" checked={newTypeMotor} onChange={(e) => setNewTypeMotor(e.target.checked)} />
+              โหลดมอเตอร์ (คำนวณด้วยกฎ 125% ตามมาตรฐาน)
+            </label>
             <div className="mt-2 flex gap-2">
               <button onClick={saveNewType} className="flex-1 rounded-lg bg-cyan py-2 text-[13px] font-semibold text-[#062330]">บันทึกชนิด</button>
               <button onClick={() => setShowAddType(false)} className="rounded-lg border border-line px-3 py-2 text-[13px] text-sub">ยกเลิก</button>

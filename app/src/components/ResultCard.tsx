@@ -71,7 +71,14 @@ export default function ResultCard({
               <span className="text-ink">ตร.มม. · {job.cableType}</span>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2.5">
-              <Stat label="กระแสโหลด" value={`${result.totalCurrentA} A`} />
+              <Stat
+                label={result.designCurrentA > result.totalCurrentA ? "กระแสโหลด / ออกแบบ (125%)" : "กระแสโหลด"}
+                value={
+                  result.designCurrentA > result.totalCurrentA
+                    ? `${result.totalCurrentA} / ${result.designCurrentA} A`
+                    : `${result.totalCurrentA} A`
+                }
+              />
               <Stat label="พิกัดสาย (derate)" value={`${result.deratedAmpacityA ?? "-"} A`} />
               <Stat
                 label="แรงดันตก"

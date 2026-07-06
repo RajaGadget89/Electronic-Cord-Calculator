@@ -116,6 +116,8 @@ export async function exportPdf(job: JobInput, r: CalcResult): Promise<void> {
   line("สายดินบริภัณฑ์", `${r.groundSizeSqmm ?? "-"} ตร.มม. (ตามเบรกเกอร์)`);
   line("เบรกเกอร์แนะนำ", `${r.breakerA ?? "-"} A`);
   line("กระแสโหลดรวม", `${r.totalCurrentA} A`);
+  if (r.designCurrentA > r.totalCurrentA)
+    line("กระแสออกแบบ (มอเตอร์ 125%)", `${r.designCurrentA} A`);
   line("พิกัดสาย (หลัง derate)", `${r.deratedAmpacityA ?? "-"} A`);
   line("แรงดันตก", `${r.voltageDropPercent ?? "-"} % (เกณฑ์ ≤ 3%)`);
   line("ตัวคูณ Ca / Cg", `${r.ca} / ${r.cg}`);

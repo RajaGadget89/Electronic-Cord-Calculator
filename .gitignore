@@ -1,22 +1,43 @@
-# dependencies & build output
+# ── dependencies & build output ───────────────────────────────
 node_modules/
 dist/
 build/
+dev-dist/
+*.tsbuildinfo
 
-# logs & os
+# vite dev artifacts (config timestamp junk)
+*.timestamp-*.mjs
+
+# ── secrets & environment — NEVER COMMIT ─────────────────────
+.env
+.env.*
+*.local
+*.pem
+*.key
+*.p12
+*.keystore
+
+# ── logs & os ─────────────────────────────────────────────────
 *.log
 npm-debug.log*
 .DS_Store
 Thumbs.db
 
-# vercel
+# ── test / coverage ───────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ── vercel ────────────────────────────────────────────────────
 .vercel/
 
-# editor
+# ── editor ────────────────────────────────────────────────────
 .vscode/
 .idea/
 
-# copyrighted reference material — DO NOT COMMIT
+# ── user data exported from the app (may contain job details) ─
+9spyre-backup-*.json
+
+# ── copyrighted reference material — DO NOT COMMIT ────────────
 *Installation*Book*.pdf
 *EIT*Standard*.pdf
 uploads/

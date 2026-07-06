@@ -1,7 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Calculation engine (pure functions). No UI, no I/O.
-// Procedure per วสท. "ขั้นตอนการหาขนาดของสายไฟฟ้า" (8 steps):
-//   IL → In → install group/table → Ca, Cg → It = In/(Ca·Cg) → pick size.
+// Procedure per วสท. "ขั้นตอนการกำหนดขนาดสายไฟฟ้า" (หนังสือหน้า 54):
+//   IL → (กฎมอเตอร์ 125%) → In → เลือกตารางตามกลุ่มติดตั้ง → Ca, Cg →
+//   It = In/(Ca·Cg) → เลือกขนาดเล็กสุดที่ผ่านทั้งพิกัดกระแสและแรงดันตก ≤ 3%
 // Breaker protects cable:  In ≤ Iz(derated).
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -10,16 +11,24 @@ import {
   BREAKER_RATINGS_A,
   CABLE_SIZES_SQMM,
   CABLE_SPECS,
+  MAX_AMBIENT_C,
+  MOTOR_FACTOR,
+  MOTOR_TYPE_IDS,
   VOLTAGE_DROP_DATA_AVAILABLE,
   VOLTAGE_DROP_LIMIT_PERCENT,
   ambientFactor,
   equipmentGroundSize,
-  groupingFactor,
+  groupingFactorEx,
   lookupAmpacity,
   voltageDropMvAm,
 } from "./data/wireData";
 
 const SQRT3 = Math.sqrt(3);
+
+/** โหลดรายการนี้เป็นมอเตอร์หรือไม่ (fallback จาก preset id สำหรับงานที่บันทึกไว้เดิม) */
+export function isMotorLoad(load: LoadItem): boolean {
+  return load.isMotor ?? MOTOR_TYPE_IDS.has(load.loadTypeId);
+}
 
 /** Current (A) drawn by one load line item, including quantity. */
 export function loadCurrentA(load: LoadItem, phase: Phase, voltage: number): number {
@@ -43,7 +52,20 @@ export function totalLoadCurrentA(input: JobInput): number {
   );
 }
 
-/** Smallest standard breaker rating ≥ load current. null if beyond frame range. */
+/**
+ * กระแสออกแบบ (design current) สำหรับกำหนดเบรกเกอร์และขนาดสาย:
+ * โหลดมอเตอร์คูณ 1.25 ตาม วสท. ข้อ 6.1.1 (สายมอเตอร์ต้องรับ ≥ 1.25×FLC)
+ * โหลดอื่นคิด 100%. การคูณ 1.25 กับมอเตอร์ทุกตัวให้ผล ≥ ข้อกำหนด
+ * (มาตรฐาน: 1.25×ตัวใหญ่สุด + ตัวอื่น 100%) จึงอยู่ฝั่งปลอดภัยเสมอ
+ */
+export function designCurrentA(input: JobInput): number {
+  return input.loads.reduce((sum, l) => {
+    const i = loadCurrentA(l, input.phase, input.voltage);
+    return sum + (isMotorLoad(l) ? MOTOR_FACTOR * i : i);
+  }, 0);
+}
+
+/** Smallest standard breaker rating ≥ design current. null if beyond frame range. */
 export function selectBreakerA(loadA: number): number | null {
   for (const r of BREAKER_RATINGS_A) if (r >= loadA) return r;
   return null;
@@ -54,12 +76,23 @@ function validate(input: JobInput): string[] {
   if (!input.name || !input.name.trim()) errors.push("กรุณากรอกชื่องาน");
   if (!(input.voltage > 0)) errors.push("แรงดันไฟฟ้าต้องมากกว่า 0");
   if (!(input.lengthM > 0)) errors.push("ความยาวสายต้องมากกว่า 0 เมตร");
-  if (!(input.ambientTempC > -50 && input.ambientTempC < 200))
-    errors.push("อุณหภูมิโดยรอบไม่สมเหตุสมผล");
+  if (!(input.ambientTempC > -50)) errors.push("อุณหภูมิโดยรอบไม่สมเหตุสมผล");
+  // ตาราง 5-43/5-44: เกิน 60°C ไม่มีตัวคูณสำหรับสาย PVC 70°C = มาตรฐานห้ามใช้
+  if (input.ambientTempC > MAX_AMBIENT_C)
+    errors.push(
+      `อุณหภูมิโดยรอบเกิน ${MAX_AMBIENT_C}°C — สายฉนวน PVC 70°C ใช้งานไม่ได้ตามมาตรฐาน (ตาราง 5-43/5-44) ` +
+        "ต้องใช้สายชนิดทนอุณหภูมิสูงและให้วิศวกรออกแบบ"
+    );
   if (!(input.groupingCircuits >= 1)) errors.push("จำนวนกลุ่มวงจรต้องอย่างน้อย 1");
+  else if (!Number.isInteger(input.groupingCircuits))
+    errors.push("จำนวนกลุ่มวงจรต้องเป็นจำนวนเต็ม");
+  // VAF เป็นสายแบน 2 แกน (+ดิน) สำหรับวงจร 1 เฟสเท่านั้น (ตาราง 5-21)
+  if (input.cableType === "VAF" && input.phase === "3P")
+    errors.push("สาย VAF เป็นสายแบนสำหรับวงจร 1 เฟสเท่านั้น ใช้กับระบบ 3 เฟสไม่ได้ — เลือกสายชนิดอื่น เช่น NYY");
   if (!input.loads.length) errors.push("ต้องมีโหลดอย่างน้อย 1 รายการ");
   input.loads.forEach((l, i) => {
-    if (!(l.value > 0)) errors.push(`โหลดรายการที่ ${i + 1}: ค่าต้องมากกว่า 0`);
+    if (!(l.value > 0 && Number.isFinite(l.value)))
+      errors.push(`โหลดรายการที่ ${i + 1}: ค่าต้องมากกว่า 0`);
     if (!(l.quantity >= 1)) errors.push(`โหลดรายการที่ ${i + 1}: จำนวนต้องอย่างน้อย 1`);
     if (!(l.pf > 0 && l.pf <= 1)) errors.push(`โหลดรายการที่ ${i + 1}: ค่า pf ต้องอยู่ระหว่าง 0-1`);
   });
@@ -74,11 +107,15 @@ export function calculate(input: JobInput): CalcResult {
   const errors = validate(input);
 
   const ca = ambientFactor(input.ambientTempC, input.installGroup);
-  const cg = groupingFactor(input.groupingCircuits);
+  const { cg, withinTable: cgWithinTable } = groupingFactorEx(
+    input.groupingCircuits,
+    input.installGroup
+  );
 
   const base: CalcResult = {
     status: "FAIL",
     totalCurrentA: 0,
+    designCurrentA: 0,
     breakerA: null,
     cableSizeSqmm: null,
     groundSizeSqmm: null,
@@ -96,9 +133,24 @@ export function calculate(input: JobInput): CalcResult {
   if (errors.length) return base;
 
   const totalA = totalLoadCurrentA(input);
+  const designA = designCurrentA(input);
   base.totalCurrentA = round(totalA, 2);
+  base.designCurrentA = round(designA, 2);
 
-  const breakerA = selectBreakerA(totalA);
+  if (designA > totalA)
+    warnings.push(
+      `มีโหลดมอเตอร์ในวงจร — ใช้กฎ 125% ตามมาตรฐาน (วสท. ข้อ 6.1.1): ` +
+        `กระแสออกแบบ ${round(designA, 1)} A จากโหลดจริง ${round(totalA, 1)} A ` +
+        "(มอเตอร์สตาร์ทหนัก/สตาร์ทบ่อย ควรพิจารณาอุปกรณ์ช่วยสตาร์ทเพิ่มเติม)"
+    );
+
+  if (!cgWithinTable)
+    warnings.push(
+      "จำนวนกลุ่มวงจรเกินขอบเขตตารางปรับค่าของมาตรฐาน — ใช้ตัวคูณต่ำสุดของตารางแทน " +
+        "ผลลัพธ์เป็นการประมาณ ควรปรึกษาวิศวกรผู้ชำนาญการ"
+    );
+
+  const breakerA = selectBreakerA(designA);
   base.breakerA = breakerA;
   if (breakerA == null) {
     base.status = "FAIL";
@@ -109,13 +161,13 @@ export function calculate(input: JobInput): CalcResult {
     return base;
   }
 
-  // Equipment grounding conductor sized by breaker rating (วสท. 6-11).
+  // Equipment grounding conductor sized by breaker rating (วสท. ตารางที่ 4-2).
   base.groundSizeSqmm = equipmentGroundSize(breakerA);
 
   // Required cable table-ampacity: It = In / (Ca·Cg).
   const requiredIt = breakerA / (ca * cg);
 
-  // Voltage drop % for a given size at the total load current.
+  // Voltage drop % ที่กระแสโหลดจริง (ตามวิธีในหนังสือ ตัวอย่าง 9.1 ใช้กระแสโหลด)
   const vdPercentFor = (size: number): number | null => {
     const mv = voltageDropMvAm(input.cableType, input.phase, size);
     if (mv == null) return null;
@@ -123,7 +175,7 @@ export function calculate(input: JobInput): CalcResult {
   };
 
   const spec = CABLE_SPECS[input.cableType];
-  let chosen: { size: number; baseA: number; verified: boolean; vdPct: number } | null = null;
+  let chosen: { size: number; baseA: number; verified: boolean; vdPct: number | null } | null = null;
   let sawPending = false;
   let vdLimited = false;
 
@@ -136,7 +188,7 @@ export function calculate(input: JobInput): CalcResult {
     if (amps < requiredIt) continue; // ampacity insufficient → try larger
     const vd = vdPercentFor(size);
     if (vd != null && vd > VOLTAGE_DROP_LIMIT_PERCENT) { vdLimited = true; continue; } // upsize for VD
-    chosen = { size, baseA: amps, verified, vdPct: round(vd ?? 0, 2) };
+    chosen = { size, baseA: amps, verified, vdPct: vd == null ? null : round(vd, 2) };
     break;
   }
 
@@ -162,7 +214,7 @@ export function calculate(input: JobInput): CalcResult {
   }
 
   base.cableSizeSqmm = chosen.size;
-  // Grounding conductor need not be larger than the phase conductor.
+  // Grounding conductor need not be larger than the phase conductor (หนังสือหน้า 113).
   if (base.groundSizeSqmm != null) base.groundSizeSqmm = Math.min(base.groundSizeSqmm, chosen.size);
   base.baseAmpacityA = chosen.baseA;
   base.deratedAmpacityA = round(chosen.baseA * ca * cg, 2);
@@ -175,6 +227,7 @@ export function calculate(input: JobInput): CalcResult {
     );
   }
 
-  base.status = chosen.verified && VOLTAGE_DROP_DATA_AVAILABLE ? "PASS" : "WARN";
+  const vdKnown = chosen.vdPct != null && VOLTAGE_DROP_DATA_AVAILABLE;
+  base.status = chosen.verified && vdKnown && cgWithinTable ? "PASS" : "WARN";
   return base;
 }
