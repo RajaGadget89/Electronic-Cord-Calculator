@@ -111,6 +111,11 @@ export default function ResultCard({
         </div>
       )}
 
+      <div className="flex gap-2 rounded-xl border border-warn/30 bg-warn/5 p-3 text-[12px] leading-relaxed text-ink/80">
+        <span>⚠️</span>
+        <span>ผลนี้เป็นการประเมินเบื้องต้นตามมาตรฐาน วสท. <strong className="text-ink">ไม่ใช่เอกสารรับรองทางวิศวกรรม</strong> — งานติดตั้งจริงควรให้วิศวกรไฟฟ้าที่มีใบอนุญาตทวนอีกชั้นก่อนใช้งาน</span>
+      </div>
+
       <div className="no-print grid grid-cols-2 gap-2.5">
         <button
           onClick={copyText}

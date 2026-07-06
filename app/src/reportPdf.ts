@@ -160,15 +160,19 @@ export async function exportPdf(job: JobInput, r: CalcResult): Promise<void> {
   }
 
   // Footer
-  const fy = 285;
+  const fy = 281;
   doc.setDrawColor(213, 222, 234);
   doc.setLineWidth(0.3);
   doc.line(M, fy - 4, W - M, fy - 4);
   doc.setFont("Sarabun", "normal");
   doc.setFontSize(9);
   setColor(gray);
-  doc.text("เครื่องมือช่วยประเมินเบื้องต้น ไม่ใช่เอกสารรับรองทางวิศวกรรม", M, fy);
-  doc.text(`สร้างโดย ${CREATOR}`, M, fy + 4);
+  const disc = doc.splitTextToSize(
+    "⚠️ ผลนี้เป็นการประเมินเบื้องต้นตามมาตรฐาน วสท. ไม่ใช่เอกสารรับรองทางวิศวกรรม — งานติดตั้งจริงควรให้วิศวกรไฟฟ้าที่มีใบอนุญาตทวนอีกชั้นก่อนใช้งาน",
+    contentW
+  );
+  doc.text(disc, M, fy);
+  doc.text(`สร้างโดย ${CREATOR}`, M, fy + disc.length * 4 + 1);
 
   const safe = (job.name || "report").replace(/[^\p{L}\p{N}\-_ ]/gu, "").trim() || "report";
   doc.save(`${safe}.pdf`);

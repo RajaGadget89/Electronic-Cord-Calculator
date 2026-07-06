@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><style>
+@page {
+  size: A4; margin: 18mm 16mm 20mm;
+  @bottom-center { content: "9SPYRE Wire — คู่มือการใช้งาน  •  เวอร์ชัน 2.1.0  •  หน้า " counter(page) "/" counter(pages);
+    font-family: Sarabun; font-size: 9pt; color: #7a8699; }
+}
+* { font-family: 'Sarabun', sans-serif; box-sizing: border-box; }
+body { color: #1a2230; font-size: 11.5pt; line-height: 1.6; margin: 0; }
+h1 { color:#0b3d91; font-size:26pt; margin:0 0 4px; }
+h2 { color:#0b3d91; font-size:16pt; margin:22px 0 6px; border-left:5px solid #22D3EE; padding-left:10px; }
+h3 { color:#14508a; font-size:13pt; margin:14px 0 4px; }
+p { margin: 6px 0; }
+.lead { color:#3a4a5e; font-size:12pt; }
+.card { background:#f4f7fc; border:1px solid #dbe4f0; border-radius:10px; padding:12px 16px; margin:10px 0; }
+.warn { background:#fff8e8; border-left:4px solid #f5a623; border-radius:0 8px 8px 0; padding:10px 14px; margin:12px 0; color:#6b5518; }
+.tip { background:#eafaf3; border-left:4px solid #34D399; border-radius:0 8px 8px 0; padding:10px 14px; margin:12px 0; color:#155e46; }
+table { border-collapse:collapse; width:100%; margin:10px 0; font-size:10.5pt; }
+th { background:#0b3d91; color:#fff; padding:7px 10px; text-align:left; }
+td { border:1px solid #d5deea; padding:6px 10px; vertical-align:top; }
+tr:nth-child(even) td { background:#f6f9fd; }
+.cover { text-align:center; padding-top:60mm; }
+.cover .sub { color:#14508a; font-size:14pt; margin-top:8px; }
+.badge { display:inline-block; background:#0F2A43; color:#22D3EE; border:1px solid #22D3EE; border-radius:20px; padding:5px 16px; font-size:11pt; margin-top:16px; }
+.pagebreak { page-break-before: always; }
+.step { display:flex; gap:12px; margin:10px 0; }
+.step .n { flex:0 0 26px; height:26px; background:#22D3EE; color:#062330; border-radius:50%; text-align:center; font-weight:700; line-height:26px; }
+.diagram { text-align:center; margin:12px 0; }
+.cap { color:#5f7d99; font-size:9.5pt; margin-top:2px; }
+strong { color:#0b3d91; }
+ul { margin:6px 0; padding-left:20px; }
+li { margin:3px 0; }
+.footcredit { margin-top:30px; border-top:1px solid #d5deea; padding-top:10px; color:#5f7d99; font-size:10pt; }
+</style></head><body>
+
+<!-- COVER -->
+<div class="cover">
+  <div style="font-size:40pt;">⚡</div>
+  <h1>9SPYRE Wire</h1>
+  <div class="sub">คู่มือการใช้งาน<br>แอปคำนวณขนาดสายไฟ เบรกเกอร์ และสายดิน</div>
+  <div class="sub" style="font-size:12pt;margin-top:6px;">ตามมาตรฐานการติดตั้งทางไฟฟ้าสำหรับประเทศไทย (วสท.)</div>
+  <div class="badge">เวอร์ชัน 2.1.0</div>
+  <div style="margin-top:40px;color:#5f7d99;">จัดทำโดย Pisut Khungkamano</div>
+</div>
+
+<!-- คำนำ -->
+<div class="pagebreak"></div>
+<h2>คำนำ</h2>
+<p class="lead">แอป 9SPYRE Wire ถูกออกแบบมาเพื่อช่วย <strong>ช่างไฟมือใหม่และเจ้าของงานทั่วไป</strong> เลือกขนาดสายไฟ ขนาดเบรกเกอร์ และขนาดสายดินที่ <strong>เหมาะสมและปลอดภัย</strong> สำหรับแต่ละวงจร โดยคำนวณตามหลักมาตรฐานการติดตั้งทางไฟฟ้าสำหรับประเทศไทย (วสท.)</p>
+<div class="warn">
+<strong>ข้อสำคัญด้านความปลอดภัย:</strong> แอปนี้เป็น <strong>เครื่องมือช่วยประเมินเบื้องต้น</strong> เพื่อส่งเสริมความรู้และความเข้าใจด้านความปลอดภัย <strong>ไม่ใช่เอกสารรับรองทางวิศวกรรม</strong> — งานติดตั้งจริง โดยเฉพาะงานที่เกี่ยวข้องกับชีวิตและทรัพย์สิน <strong>ควรให้วิศวกรไฟฟ้าที่มีใบอนุญาตทวนอีกชั้นก่อนใช้งานเสมอ</strong>
+</div>
+
+<!-- ทำไมต้องเลือกให้เหมาะ -->
+<h2>ทำไม "ขนาดที่เหมาะสม" จึงสำคัญ</h2>
+
+<h3>1. ขนาดสายไฟ — เล็กเกินไป = อันตราย</h3>
+<p>สายไฟทุกเส้นมี "พิกัดกระแส" คือปริมาณไฟสูงสุดที่รับได้อย่างปลอดภัย ถ้าโหลดดึงกระแสมากกว่าที่สายรับไหว สายจะ <strong>ร้อนสะสม → ฉนวนละลาย → ลัดวงจร → ไฟไหม้</strong></p>
+<div class="diagram">
+<svg width="440" height="120" viewBox="0 0 440 120" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="52" width="180" height="16" rx="8" fill="#9fd8a0"/>
+  <text x="100" y="90" font-size="11" fill="#155e46" text-anchor="middle" font-family="Sarabun">สายพอดี → ไม่ร้อน ✓</text>
+  <rect x="250" y="52" width="180" height="10" rx="5" fill="#f0997b"/>
+  <path d="M270 45 q5 -10 10 0 q5 -10 10 0 q5 -10 10 0" stroke="#d85a30" fill="none" stroke-width="2"/>
+  <path d="M330 45 q5 -10 10 0 q5 -10 10 0 q5 -10 10 0" stroke="#d85a30" fill="none" stroke-width="2"/>
+  <text x="340" y="90" font-size="11" fill="#993c1d" text-anchor="middle" font-family="Sarabun">สายเล็กไป → ร้อน → ไหม้ ✗</text>
+</svg>
+<div class="cap">สายที่พอดีกับโหลดจะไม่ร้อนเกิน ส่วนสายที่เล็กเกินไปจะร้อนจนเป็นอันตราย</div>
+</div>
+
+<h3>2. เบรกเกอร์ — ต้อง "ปกป้องสาย" ไม่ใช่แค่ตัดโหลด</h3>
+<p>เบรกเกอร์มีหน้าที่ตัดไฟเมื่อกระแสเกิน หลักสำคัญคือ <strong>สายต้องทนกระแสได้มากกว่าพิกัดเบรกเกอร์เสมอ</strong> (พิกัดสาย ≥ พิกัดเบรกเกอร์) เพื่อให้เบรกเกอร์ตัดก่อนที่สายจะเสียหาย ถ้าเลือกเบรกเกอร์ใหญ่เกินสาย เมื่อไฟเกิน สายจะไหม้ก่อนเบรกเกอร์ตัด</p>
+<div class="diagram">
+<svg width="440" height="90" viewBox="0 0 440 90" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="30" width="70" height="40" rx="6" fill="#0F2A43" stroke="#22D3EE"/>
+  <text x="55" y="55" font-size="10" fill="#22D3EE" text-anchor="middle" font-family="Sarabun">เบรกเกอร์</text>
+  <rect x="90" y="46" width="240" height="10" rx="5" fill="#85B7EB"/>
+  <rect x="330" y="34" width="70" height="34" rx="6" fill="#eef3fb" stroke="#0b3d91"/>
+  <text x="365" y="55" font-size="10" fill="#0b3d91" text-anchor="middle" font-family="Sarabun">โหลด</text>
+  <text x="210" y="38" font-size="10" fill="#14508a" text-anchor="middle" font-family="Sarabun">พิกัดสาย ≥ พิกัดเบรกเกอร์</text>
+</svg>
+<div class="cap">เบรกเกอร์ต้องตัดก่อนที่สายจะทนไม่ไหว</div>
+</div>
+
+<h3>3. สายดิน — กันไฟดูดถึงชีวิต</h3>
+<p>สายดิน (Ground) ปกติ <strong>ไม่มีกระแสไหล</strong> แต่เมื่อเกิดไฟรั่วมาที่ตัวถังโลหะของอุปกรณ์ สายดินจะนำกระแสลงดินและทำให้เบรกเกอร์ตัดทันที ป้องกันไม่ให้คนที่สัมผัสถูกไฟดูด ขนาดสายดินบริภัณฑ์คิดตามพิกัดเบรกเกอร์ของวงจร (วสท. ตารางที่ 4.2)</p>
+
+<h3>4. แรงดันตก — สายยาว/เล็กไป ทำอุปกรณ์เสีย</h3>
+<p>ยิ่งสายยาวและกระแสมาก แรงดันไฟจะ "ตก" ลงเมื่อถึงปลายสาย ถ้าตกมากเกินไป (เกิน 3%) อุปกรณ์จะทำงานผิดปกติ มอเตอร์ร้อน หลอดหรี่ อายุการใช้งานสั้นลง แอปจะ <strong>เพิ่มขนาดสายให้อัตโนมัติ</strong> ถ้าแรงดันตกเกินเกณฑ์</p>
+<div class="tip"><strong>สรุป:</strong> การเลือกขนาดที่เหมาะสม = ปลอดภัยจากไฟไหม้ + กันไฟดูด + อุปกรณ์ไม่เสีย + ประหยัด (ไม่ใหญ่เกินจำเป็น)</div>
+
+<!-- ฟีเจอร์ -->
+<div class="pagebreak"></div>
+<h2>แอปทำอะไรได้บ้าง</h2>
+<table>
+<tr><th>ฟีเจอร์</th><th>รายละเอียด</th></tr>
+<tr><td><strong>คำนวณขนาดสาย</strong></td><td>แนะนำขนาดสายไฟ (THW, VAF, VCT, NYY) ตามโหลด ความยาว อุณหภูมิ และวิธีติดตั้ง</td></tr>
+<tr><td><strong>กฎ 125% มอเตอร์</strong></td><td>โหลดมอเตอร์ (ปั๊ม/แอร์/พัดลม/ตู้เย็น) คิดกระแสออกแบบ 125% ตาม วสท. อัตโนมัติ</td></tr>
+<tr><td><strong>เลือกเบรกเกอร์</strong></td><td>แนะนำพิกัดเบรกเกอร์มาตรฐานที่ปกป้องสายได้ถูกต้อง</td></tr>
+<tr><td><strong>ขนาดสายดิน</strong></td><td>คำนวณสายดินบริภัณฑ์ตามพิกัดเบรกเกอร์ (ตาราง 4.2)</td></tr>
+<tr><td><strong>ตรวจแรงดันตก</strong></td><td>คำนวณ %แรงดันตก และเลื่อนขนาดสายให้ถ้าเกิน 3%</td></tr>
+<tr><td><strong>บันทึกงาน</strong></td><td>เก็บงานไว้ในเครื่อง (ออฟไลน์) ดูย้อนหลัง แก้ไข คำนวณใหม่ ทำซ้ำได้</td></tr>
+<tr><td><strong>ค้นหา/จัดเรียง/แท็ก</strong></td><td>ค้นหางาน จัดเรียงตามวันที่/ชื่อ ติดแท็กหมวดหมู่ และแบ่งหน้า</td></tr>
+<tr><td><strong>ออกรายงาน</strong></td><td>คัดลอกข้อความ, ดาวน์โหลด Markdown, ส่งออก PDF (ภาษาไทย), พิมพ์, แชร์</td></tr>
+<tr><td><strong>สำรอง/กู้คืน</strong></td><td>ส่งออกข้อมูลทั้งหมดเป็นไฟล์เดียว กันข้อมูลหาย</td></tr>
+<tr><td><strong>ติดตั้งเป็นแอป</strong></td><td>เพิ่มลงหน้าจอมือถือ ใช้งานแบบออฟไลน์ได้ (PWA)</td></tr>
+</table>
+
+<!-- วิธีใช้ -->
+<h2>วิธีใช้งาน 4 ขั้นตอน</h2>
+<div class="step"><div class="n">1</div><div><strong>สร้างงานใหม่</strong> — กดปุ่ม "+ สร้างงานใหม่" ที่หน้าแรก</div></div>
+<div class="step"><div class="n">2</div><div><strong>กรอกข้อมูล</strong> — ชื่องาน, ระบบไฟ (1/3 เฟส), ชนิดสาย, วิธีติดตั้ง, ความยาว, อุณหภูมิ, กลุ่มวงจร แล้วเพิ่มโหลด (เลือกชนิด ใส่ค่าเป็นวัตต์หรือแอมป์ และจำนวน) — ช่องที่มี <span style="color:#c0392b">*</span> ต้องกรอก และมีไอคอน <strong>i</strong> กดดูคำอธิบายได้</div></div>
+<div class="step"><div class="n">3</div><div><strong>กดคำนวณ</strong> — ดูผล: ขนาดสาย, สายดิน, แรงดันตก, เบรกเกอร์ และสถานะ <span style="color:#159e6e">ผ่าน</span>/<span style="color:#b8860b">เตือน</span>/<span style="color:#c0392b">ไม่ผ่าน</span></div></div>
+<div class="step"><div class="n">4</div><div><strong>บันทึก/ออกรายงาน</strong> — กดบันทึกเพื่อดูย้อนหลัง หรือส่งออก PDF/คัดลอกข้อความเพื่อแชร์</div></div>
+
+<!-- อภิธานศัพท์ -->
+<div class="pagebreak"></div>
+<h2>อภิธานศัพท์ (คำที่ควรรู้)</h2>
+<table>
+<tr><th>คำ</th><th>ความหมายอย่างง่าย</th></tr>
+<tr><td><strong>โหลด</strong></td><td>อุปกรณ์ที่ใช้ไฟ เช่น ปั๊ม หลอดไฟ แอร์ — วัดเป็นวัตต์ (W) หรือแอมป์ (A)</td></tr>
+<tr><td><strong>pf (ตัวประกอบกำลัง)</strong></td><td>บอกว่าโหลดใช้ไฟจริงเทียบกับที่จ่ายแค่ไหน หลอด/ฮีตเตอร์ = 1.0, มอเตอร์/แอร์ ≈ 0.8–0.85 (ใช้แปลงวัตต์เป็นแอมป์)</td></tr>
+<tr><td><strong>โหลดมอเตอร์ / กฎ 125%</strong></td><td>มอเตอร์ต้องออกแบบสาย/เบรกเกอร์ที่ 125% ของกระแสใช้งาน เพื่อรองรับกระแสตอนสตาร์ท</td></tr>
+<tr><td><strong>พิกัดกระแส (Ampacity)</strong></td><td>กระแสสูงสุดที่สายรับได้อย่างปลอดภัย</td></tr>
+<tr><td><strong>กลุ่มวงจร</strong></td><td>จำนวนวงจรที่เดินสายรวมในท่อเดียวกัน ยิ่งมาก สายยิ่งต้องใหญ่ขึ้น (ปกติ = 1)</td></tr>
+<tr><td><strong>อุณหภูมิแวดล้อม</strong></td><td>ความร้อนรอบ ๆ สาย ยิ่งร้อน สายยิ่งรับกระแสได้น้อย (ค่ามาตรฐาน 40°C, สูงสุด 60°C สำหรับสาย PVC)</td></tr>
+<tr><td><strong>แรงดันตก</strong></td><td>แรงดันที่หายไปตามความยาวสาย เกณฑ์ที่ยอมรับ ≤ 3%</td></tr>
+<tr><td><strong>สายดินบริภัณฑ์</strong></td><td>สายดินที่เดินไปกับวงจรถึงอุปกรณ์ กันไฟดูด คิดขนาดตามเบรกเกอร์ (ตาราง 4.2)</td></tr>
+</table>
+
+<!-- FAQ -->
+<h2>คำถามพบบ่อย</h2>
+<p><strong>ถาม: ใส่ค่าเป็นวัตต์หรือแอมป์ดี?</strong><br>ตอบ: ใส่ได้ทั้งสองแบบ ดูจากป้ายอุปกรณ์ ถ้าเป็นวัตต์ (W) แอปจะแปลงเป็นแอมป์ให้เองโดยใช้ค่า pf</p>
+<p><strong>ถาม: ทำไมบางครั้งแอปแนะนำสายใหญ่กว่าที่คิด?</strong><br>ตอบ: อาจเพราะเป็นโหลดมอเตอร์ (คิด 125%) หรือสายยาวมาก (แรงดันตกเกิน 3%) หรือเดินหลายวงจรรวมท่อ หรืออุณหภูมิสูง แอปจึงเผื่อความปลอดภัย</p>
+<p><strong>ถาม: ข้อมูลงานเก็บที่ไหน หายไหม?</strong><br>ตอบ: เก็บในเครื่องของคุณเท่านั้น (ออฟไลน์) แนะนำกด "สำรอง" เก็บไฟล์ไว้เป็นระยะ กันข้อมูลหายเวลาล้างเครื่อง</p>
+<p><strong>ถาม: รองรับโหลดใหญ่แค่ไหน?</strong><br>ตอบ: ออกแบบสำหรับงานไม่ซับซ้อน สายไม่เกิน 50 ตร.มม. ถ้าเกินนี้ควรปรึกษาช่างผู้ชำนาญการ และอาจต้องใช้อุปกรณ์เพิ่ม เช่น แมกเนติกคอนแทกเตอร์ รีเลย์ป้องกันโหลดเกิน</p>
+
+<!-- ข้อจำกัด -->
+<h2>ข้อจำกัดและความปลอดภัย</h2>
+<ul>
+<li>เป็นเครื่องมือช่วยประเมิน <strong>ไม่ใช่เอกสารรับรองทางวิศวกรรม</strong></li>
+<li><strong>งานติดตั้งจริงควรให้วิศวกรไฟฟ้าที่มีใบอนุญาตทวนอีกชั้นก่อนใช้งาน</strong></li>
+<li>รองรับสายทองแดงหุ้ม PVC ขนาดไม่เกิน 50 ตร.มม. (งานทั่วไป)</li>
+<li>ควรตัดไฟทุกครั้งก่อนทำงานกับระบบไฟฟ้า และปฏิบัติตามข้อกำหนดของการไฟฟ้าฯ</li>
+</ul>
+
+<!-- ประวัติเวอร์ชัน -->
+<div class="pagebreak"></div>
+<h2>ประวัติเวอร์ชัน (Version History)</h2>
+<table>
+<tr><th style="width:70px">เวอร์ชัน</th><th style="width:90px">วันที่</th><th>การเปลี่ยนแปลง</th></tr>
+<tr><td><strong>2.1.0</strong></td><td>6 ก.ค. 2569</td><td>เพิ่มหมายเหตุความปลอดภัยในหน้าผลลัพธ์และรายงานทุกรูปแบบ: งานจริงควรให้วิศวกรไฟฟ้าที่มีใบอนุญาตทวนก่อนใช้งาน</td></tr>
+<tr><td><strong>2.0.0</strong></td><td>6 ก.ค. 2569</td><td>แก้การคำนวณให้ตรงมาตรฐาน วสท. 2564 หลัง audit เทียบหนังสือทีละค่า: กฎ 125% มอเตอร์, VCT ใช้ตาราง 5-26, สายดินใช้ตาราง 4.2, ตาราง 5-22 คอลัมน์แนวตั้ง, Cg แยกตามวิธีติดตั้ง, บล็อกอุณหภูมิ >60°C, VAF จำกัด 1 เฟส (ผลบางเคสเปลี่ยน)</td></tr>
+<tr><td>1.7.0</td><td>6 ก.ค. 2569</td><td>เพิ่มคู่มือ (PDF) ในหน้าแรก · ไอคอนช่วยเหลือ i · แสดงเวอร์ชัน + ระบบประวัติเวอร์ชัน</td></tr>
+<tr><td>1.6.0</td><td>6 ก.ค. 2569</td><td>เพิ่มการคำนวณขนาดสายดินบริภัณฑ์ตามพิกัดเบรกเกอร์</td></tr>
+<tr><td>1.5.0</td><td>6 ก.ค. 2569</td><td>หน้าแรก: แท็ก/หมวดหมู่ + ฟิลเตอร์, เลือกจำนวนต่อหน้า, ทำซ้ำงาน</td></tr>
+<tr><td>1.4.0</td><td>6 ก.ค. 2569</td><td>หน้าแรก: ค้นหา, จัดเรียง, แบ่งหน้า, เลขลำดับงาน</td></tr>
+<tr><td>1.3.0</td><td>6 ก.ค. 2569</td><td>ปุ่มคัดลอกข้อความ + ส่งออก PDF กดปุ่มเดียว (ฝังฟอนต์ไทย)</td></tr>
+<tr><td>1.2.0</td><td>6 ก.ค. 2569</td><td>แก้ไฟล์ Markdown ที่ส่งออกให้แสดงภาษาไทยถูกต้อง (UTF-8 BOM)</td></tr>
+<tr><td>1.1.0</td><td>6 ก.ค. 2569</td><td>แก้การแสดงผลบนมือถือให้เต็มจอ + ตรวจสอบข้อมูลเรียลไทม์ + ปิดปุ่มคำนวณจนกรอกครบ</td></tr>
+<tr><td>1.0.0</td><td>6 ก.ค. 2569</td><td>เวอร์ชันแรก: คำนวณสาย/เบรกเกอร์/แรงดันตกตาม วสท., บันทึกงาน, ออกรายงาน</td></tr>
+</table>
+
+<div class="footcredit">
+<strong>ผู้จัดทำ:</strong> Pisut Khungkamano<br>
+<strong>อ้างอิง:</strong> มาตรฐานการติดตั้งทางไฟฟ้าสำหรับประเทศไทย พ.ศ. 2564 (วิศวกรรมสถานแห่งประเทศไทยฯ / วสท.)<br>
+เอกสารนี้เป็นคู่มือช่วยความเข้าใจ ไม่ใช่เอกสารรับรองทางวิศวกรรม
+</div>
+
+</body></html>
