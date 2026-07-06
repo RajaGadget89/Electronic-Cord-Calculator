@@ -8,7 +8,14 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["logo.png", "icon-192.png", "icon-512.png"],
+      includeAssets: ["logo.png", "icon-192.png", "icon-512.png", "manual.pdf", "fonts/*.ttf"],
+      workbox: {
+        // precache pdf + fonts too (so the manual works offline)
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest,ttf,pdf}"],
+        // don't let the SPA navigation fallback (index.html) hijack the PDF/fonts
+        navigateFallbackDenylist: [/\.pdf$/, /\/fonts\//],
+        cleanupOutdatedCaches: true,
+      },
       manifest: {
         name: "9SPYRE Wire — คำนวณสายไฟ (วสท.)",
         short_name: "9SPYRE Wire",

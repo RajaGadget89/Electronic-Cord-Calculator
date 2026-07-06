@@ -2,7 +2,7 @@
 // Update APP_VERSION and prepend a CHANGELOG entry on every release.
 // The same data feeds the on-screen version label and the user manual.
 
-export const APP_VERSION = "2.2.0";
+export const APP_VERSION = "2.2.1";
 
 export interface ChangeEntry {
   version: string;
@@ -11,6 +11,13 @@ export interface ChangeEntry {
 }
 
 export const CHANGELOG: ChangeEntry[] = [
+  {
+    version: "2.2.1",
+    date: "2026-07-06",
+    changes: [
+      "แก้บั๊ก: ลิงก์คู่มือในหน้าแรกเปิดไม่ได้ (service worker ของ PWA ดักไฟล์ PDF) — ยกเว้นไฟล์ .pdf/ฟอนต์ออกจาก navigation fallback และแคชคู่มือให้เปิดออฟไลน์ได้",
+    ],
+  },
   {
     version: "2.2.0",
     date: "2026-07-06",
