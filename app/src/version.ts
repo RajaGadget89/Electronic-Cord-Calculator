@@ -2,7 +2,7 @@
 // Update APP_VERSION and prepend a CHANGELOG entry on every release.
 // The same data feeds the on-screen version label and the user manual.
 
-export const APP_VERSION = "2.7.0";
+export const APP_VERSION = "2.7.1";
 
 export interface ChangeEntry {
   version: string;
@@ -11,6 +11,16 @@ export interface ChangeEntry {
 }
 
 export const CHANGELOG: ChangeEntry[] = [
+  {
+    version: "2.7.1",
+    date: "2026-07-08",
+    changes: [
+      "โหมดเครื่องใช้ไฟฟ้า: ตั้งชื่องานได้ตั้งแต่แรก (เช่นชื่อบ้านลูกค้า) เพื่อดูย้อนหลังแยกแต่ละงาน",
+      "โหมดเครื่องใช้ไฟฟ้า: กรอกกำลังไฟเป็นวัตต์หรือแอมป์ก็ได้ (สลับหน่วยแล้วแปลงค่าให้อัตโนมัติ)",
+      "อุปกรณ์ที่มีหลายขนาด (ไมโครเวฟ/เตา/กาต้มน้ำ/เครื่องทำน้ำอุ่น ฯลฯ) ใช้ชื่อกลาง ๆ ให้กรอกกำลังไฟตามป้ายเครื่อง + เพิ่มเครื่องซักผ้าและตัวเลือก 'อื่น ๆ'",
+      "แก้บั๊ก: เปิดงานเครื่องใช้ไฟฟ้าย้อนหลังแล้วชนิดโหลดแสดงเป็น 'หลอด LED' แทนที่จะเป็นอุปกรณ์ที่เลือกไว้",
+    ],
+  },
   {
     version: "2.7.0",
     date: "2026-07-07",

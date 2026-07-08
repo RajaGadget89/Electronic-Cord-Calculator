@@ -269,6 +269,10 @@ export default function JobForm({
               <div key={i} className="rounded-lg bg-base p-2.5">
                 <div className="mb-2 flex gap-2">
                   <select className={`${cls()} flex-1`} value={l.loadTypeId} onChange={(e) => chooseType(i, e.target.value)}>
+                    {/* งานที่บันทึกจากโหมดเครื่องใช้ไฟฟ้า/ชนิดที่ถูกลบ อาจมี loadTypeId ที่ไม่อยู่ในรายการ — แสดง label เดิมไว้ ไม่ให้เด้งไปตัวแรก */}
+                    {!(loadTypes ?? []).some((t) => t.id === l.loadTypeId) && (
+                      <option value={l.loadTypeId}>{l.label || "โหลด"}</option>
+                    )}
                     {(loadTypes ?? []).map((t) => (
                       <option key={t.id} value={t.id}>{t.name}</option>
                     ))}
